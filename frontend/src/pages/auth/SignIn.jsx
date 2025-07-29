@@ -37,7 +37,7 @@ const SignIn = () => {
 	// Clear errors when component mounts
 	useEffect(() => {
 		clearError();
-	}, [clearError]);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onSubmit = async (data) => {
 		try {
@@ -69,7 +69,10 @@ const SignIn = () => {
 				<div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-8">
 					{/* Header */}
 					<div className="text-center mb-8">
-						<Link to="/" className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl mb-4">
+						<Link
+							to="/"
+							className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl mb-4"
+						>
 							<Leaf className="w-8 h-8 text-primary-600" />
 						</Link>
 						<h1 className="text-2xl font-bold text-gray-900 mb-2">

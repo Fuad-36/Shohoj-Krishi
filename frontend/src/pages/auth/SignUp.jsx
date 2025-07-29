@@ -45,7 +45,7 @@ const SignUp = () => {
 	// Clear errors when component mounts
 	useEffect(() => {
 		clearError();
-	}, [clearError]);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onSubmit = async (data) => {
 		try {
@@ -194,6 +194,233 @@ const SignUp = () => {
 
 						{/* Rest of the form continues with name, email, phone, location, password fields... */}
 						{/* For brevity, keeping the existing form structure */}
+
+						{/* Name Field */}
+						<div>
+							<label
+								htmlFor="name"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Full Name
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<User className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("name")}
+									type="text"
+									id="name"
+									className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
+									}`}
+									placeholder="Enter your full name"
+								/>
+							</div>
+							{errors.name && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.name.message}
+								</p>
+							)}
+						</div>
+
+						{/* Email Field */}
+						<div>
+							<label
+								htmlFor="email"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Email Address
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<Mail className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("email")}
+									type="email"
+									id="email"
+									className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.email
+											? "border-red-300 bg-red-50"
+											: "border-gray-300"
+									}`}
+									placeholder="Enter your email"
+								/>
+							</div>
+							{errors.email && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.email.message}
+								</p>
+							)}
+						</div>
+
+						{/* Phone Field */}
+						<div>
+							<label
+								htmlFor="phone"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Phone Number
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<Phone className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("phone")}
+									type="tel"
+									id="phone"
+									className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.phone
+											? "border-red-300 bg-red-50"
+											: "border-gray-300"
+									}`}
+									placeholder="Enter your phone number"
+								/>
+							</div>
+							{errors.phone && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.phone.message}
+								</p>
+							)}
+						</div>
+
+						{/* Location Field */}
+						<div>
+							<label
+								htmlFor="location"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Location
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<MapPin className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("location")}
+									type="text"
+									id="location"
+									className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.location
+											? "border-red-300 bg-red-50"
+											: "border-gray-300"
+									}`}
+									placeholder="City, State/Province"
+								/>
+							</div>
+							{errors.location && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.location.message}
+								</p>
+							)}
+						</div>
+
+						{/* Password Field */}
+						<div>
+							<label
+								htmlFor="password"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Password
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<Lock className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("password")}
+									type={showPassword ? "text" : "password"}
+									id="password"
+									className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.password
+											? "border-red-300 bg-red-50"
+											: "border-gray-300"
+									}`}
+									placeholder="Create a strong password"
+								/>
+								<button
+									type="button"
+									className="absolute inset-y-0 right-0 pr-3 flex items-center"
+									onClick={() => setShowPassword(!showPassword)}
+								>
+									{showPassword ? (
+										<EyeOff className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+									) : (
+										<Eye className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+									)}
+								</button>
+							</div>
+							{errors.password && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.password.message}
+								</p>
+							)}
+						</div>
+
+						{/* Confirm Password Field */}
+						<div>
+							<label
+								htmlFor="confirmPassword"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Confirm Password
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<Lock className="w-5 h-5 text-gray-400" />
+								</div>
+								<input
+									{...register("confirmPassword")}
+									type={showConfirmPassword ? "text" : "password"}
+									id="confirmPassword"
+									className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+										errors.confirmPassword
+											? "border-red-300 bg-red-50"
+											: "border-gray-300"
+									}`}
+									placeholder="Confirm your password"
+								/>
+								<button
+									type="button"
+									className="absolute inset-y-0 right-0 pr-3 flex items-center"
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+								>
+									{showConfirmPassword ? (
+										<EyeOff className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+									) : (
+										<Eye className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+									)}
+								</button>
+							</div>
+							{errors.confirmPassword && (
+								<p className="mt-1 text-sm text-red-600">
+									{errors.confirmPassword.message}
+								</p>
+							)}
+						</div>
+
+						{/* Submit Button */}
+						<Button
+							type="submit"
+							variant="primary"
+							size="lg"
+							className="w-full"
+							disabled={isSubmitting || isLoading}
+						>
+							{isSubmitting || isLoading ? (
+								<>
+									<Loader2 className="w-5 h-5 mr-2 animate-spin" />
+									Creating Account...
+								</>
+							) : (
+								<>
+									<UserPlus className="w-5 h-5 mr-2" />
+									Create Account
+								</>
+							)}
+						</Button>
 
 						{/* Sign In Link */}
 						<div className="mt-8 text-center">

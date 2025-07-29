@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import React, {
+	createContext,
+	useContext,
+	useReducer,
+	useEffect,
+	useCallback,
+} from "react";
 import { authAPI } from "../services/api";
 
 // Initial state
@@ -111,7 +117,7 @@ export const AuthProvider = ({ children }) => {
 	}, []);
 
 	// Login function
-	const login = async (credentials) => {
+	const login = useCallback(async (credentials) => {
 		try {
 			dispatch({ type: AUTH_ACTIONS.AUTH_START });
 
@@ -136,10 +142,10 @@ export const AuthProvider = ({ children }) => {
 			});
 			return { success: false, error: errorMessage };
 		}
-	};
+	}, []);
 
 	// Register function
-	const register = async (userData) => {
+	const register = useCallback(async (userData) => {
 		try {
 			dispatch({ type: AUTH_ACTIONS.AUTH_START });
 
@@ -165,10 +171,10 @@ export const AuthProvider = ({ children }) => {
 			});
 			return { success: false, error: errorMessage };
 		}
-	};
+	}, []);
 
 	// Logout function
-	const logout = async () => {
+	const logout = useCallback(async () => {
 		try {
 			await authAPI.logout();
 		} catch (error) {
@@ -177,15 +183,15 @@ export const AuthProvider = ({ children }) => {
 			localStorage.removeItem("authToken");
 			dispatch({ type: AUTH_ACTIONS.LOGOUT });
 		}
-	};
+	}, []);
 
 	// Clear error function
-	const clearError = () => {
+	const clearError = useCallback(() => {
 		dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-	};
+	}, []);
 
 	// Update user profile
-	const updateProfile = async (updateData) => {
+	const updateProfile = useCallback(async (updateData) => {
 		try {
 			const response = await authAPI.updateProfile(updateData);
 			dispatch({
@@ -198,7 +204,7 @@ export const AuthProvider = ({ children }) => {
 				error.response?.data?.message || "Profile update failed.";
 			return { success: false, error: errorMessage };
 		}
-	};
+	}, []);
 
 	const value = {
 		...state,
