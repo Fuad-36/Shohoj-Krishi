@@ -22,6 +22,8 @@ public class SecurityConfig {
                         // Allow error endpoint
                         .requestMatchers("/error").permitAll()
                         // All other requests need authentication (for later)
+                        .requestMatchers("/api/admin/**").permitAll()
+
                         .anyRequest().authenticated()
                 );
 
