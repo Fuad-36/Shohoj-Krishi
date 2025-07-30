@@ -55,25 +55,5 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Custom builder method to ensure mutable collection
-    public static class UserBuilder {
-        public UserBuilder roles(Set<Role> roles) {
-            this.roles = new HashSet<>(roles != null ? roles : new HashSet<>());
-            return this;
-        }
-    }
 
-    // Utility methods for roles
-    public void addRole(Role role) {
-        if (this.roles == null) {
-            this.roles = new HashSet<>();
-        }
-        this.roles.add(role);
-    }
-
-    public void removeRole(Role role) {
-        if (this.roles != null) {
-            this.roles.remove(role);
-        }
-    }
 }
