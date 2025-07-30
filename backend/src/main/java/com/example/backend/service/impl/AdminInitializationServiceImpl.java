@@ -46,6 +46,7 @@ public class AdminInitializationServiceImpl implements AdminInitializationServic
                 .passwordHash(passwordEncoder.encode(adminPassword))
                 .emailVerified(true)
                 .phoneVerified(true)
+                .isActive(true)
                 .status(UserStatus.ACTIVE)
                 .roles(Set.of(adminRole))
                 .build();

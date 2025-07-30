@@ -1,5 +1,35 @@
 package com.example.backend.service.auth.impl;
 
+import com.example.backend.dto.auth.request.LoginRequest;
+import com.example.backend.dto.auth.request.RegisterRequest;
+import com.example.backend.dto.auth.request.VerifyOtpRequest;
+import com.example.backend.dto.auth.response.AuthResponse;
+import com.example.backend.dto.auth.response.MessageResponse;
+import com.example.backend.entity.auth.*;
+import com.example.backend.exception.DuplicateResourceException;
+import com.example.backend.exception.InvalidOtpException;
+import com.example.backend.exception.OtpExpiredException;
+import com.example.backend.repository.auth.RoleRepository;
+import com.example.backend.repository.auth.UserRepository;
+import com.example.backend.service.EmailService;
+import com.example.backend.service.auth.AuthService;
+import com.example.backend.service.auth.JwtService;
+import com.example.backend.util.OtpUtil;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import com.example.backend.config.AppConfig;
 import com.example.backend.dto.auth.request.RegisterRequest;
 import com.example.backend.dto.auth.request.VerifyOtpRequest;
@@ -17,26 +47,62 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+
+
+
     private final OtpCodeRepository otpCodeRepository;
     private final FarmerProfileRepository farmerProfileRepository;
     private final BuyerProfileRepository buyerProfileRepository;
     private final AuthorityProfileRepository authorityProfileRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
     private final AppConfig appConfig;
+
+    @Override
+    public AuthResponse authenticate(LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+                )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = (User) authentication.getPrincipal();
+
+            if (!user.getEmailVerified()) {
+                throw new RuntimeException("Email not verified");
+            }
+
+            if (user.getStatus()!= UserStatus.ACTIVE) {
+                throw new RuntimeException("Account is not active");
+            }
+
+            String jwtToken = jwtService.generateToken(user);
+
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .message("Login successful")
+                    .build();
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Invalid email or password");
+        } catch (AuthenticationException e) {
+            throw new RuntimeException("Authentication failed: " + e.getMessage());
+        }
+    }
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
