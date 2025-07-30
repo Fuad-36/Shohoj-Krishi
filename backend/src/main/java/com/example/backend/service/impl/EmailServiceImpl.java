@@ -48,6 +48,21 @@ public class EmailServiceImpl implements EmailService {
 
         sendSimpleEmail(to, subject, body);
     }
+    @Override
+    public void sendAcceptationEmail(String to, String fullName) {
+        String subject = "Shohoj Krishi - Account Registration Update";
+        String body = String.format(
+                "Dear %s,\n\n" +
+                        "Congratulations!\n\n" +
+                        "We are happy to inform you that your account registration has been approved.\n\n" +
+                        "Please use your password to log in\n\n" +
+                        "Best regards,\n" +
+                        "Shohoj Krishi Team",
+                fullName
+        );
+
+        sendSimpleEmail(to, subject, body);
+    }
 
     @Override
     public void sendRejectionEmail(String to, String fullName, String reason) {
