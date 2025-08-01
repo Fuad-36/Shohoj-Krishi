@@ -38,4 +38,3 @@ public class AdminAuthorityApprovalController {
         return ResponseEntity.ok("Authority rejected successfully");
     }
 }
-
