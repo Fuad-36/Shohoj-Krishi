@@ -1,6 +1,7 @@
 package com.example.backend.config;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,7 +9,16 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "jwt")
 @Data
 public class JwtProperties {
-    private String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private long expiration = 86400000; // 1 day in milliseconds
-    private String issuer = "Shohoj Krishi";
+
+    @Value("${app.jwt.secret}")
+    private String secretKey;
+
+    @Value("${app.jwt.expiration}")
+    private long expiration;
+
+    @Value("${app.jwt.refresh.expiration}")
+    private long refreshExpiration;
+
+    @Value("${app.jwt.issuer}")
+    private String issuer;
 }

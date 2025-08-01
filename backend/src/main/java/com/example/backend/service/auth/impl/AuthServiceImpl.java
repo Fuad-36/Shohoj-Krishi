@@ -1,8 +1,7 @@
 package com.example.backend.service.auth.impl;
 
-import com.example.backend.dto.auth.request.LoginRequest;
-import com.example.backend.dto.auth.request.RegisterRequest;
-import com.example.backend.dto.auth.request.VerifyOtpRequest;
+import com.example.backend.config.JwtProperties;
+import com.example.backend.dto.auth.request.*;
 import com.example.backend.dto.auth.response.AuthResponse;
 import com.example.backend.dto.auth.response.MessageResponse;
 import com.example.backend.entity.auth.*;
@@ -15,6 +14,7 @@ import com.example.backend.service.EmailService;
 import com.example.backend.service.auth.AuthService;
 import com.example.backend.service.auth.JwtService;
 import com.example.backend.util.OtpUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -63,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
 
-
+    private final AuthTokenRepository authTokenRepository;
+    private final HttpServletRequest request;
     private final OtpCodeRepository otpCodeRepository;
     private final FarmerProfileRepository farmerProfileRepository;
     private final BuyerProfileRepository buyerProfileRepository;
@@ -91,10 +92,12 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("Account is not active");
             }
 
-            String jwtToken = jwtService.generateToken(user);
+            String jwtToken = jwtService.generateAccessToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
 
             return AuthResponse.builder()
                     .token(jwtToken)
+                    .refreshToken(refreshToken)
                     .message("Login successful")
                     .build();
         } catch (BadCredentialsException e) {
@@ -102,6 +105,29 @@ public class AuthServiceImpl implements AuthService {
         } catch (AuthenticationException e) {
             throw new RuntimeException("Authentication failed: " + e.getMessage());
         }
+    }
+
+    @Override
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+        if (refreshToken == null || !jwtService.isRefreshToken(refreshToken)) {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+
+        String email = jwtService.extractUsername(refreshToken);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!user.getEmailVerified()) {
+            throw new RuntimeException("Email not verified");
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(user);
+        return AuthResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(refreshToken)
+                .message("Token refreshed successfully")
+                .build();
     }
 
     @Override

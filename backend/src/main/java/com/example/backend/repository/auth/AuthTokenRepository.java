@@ -1,3 +1,4 @@
+
 package com.example.backend.repository.auth;
 
 import com.example.backend.entity.auth.AuthToken;
@@ -7,5 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
-    Optional<AuthToken> findByRefreshToken(UUID refreshToken);
+    Optional<AuthToken> findByRefreshToken(String refreshToken);
 }
