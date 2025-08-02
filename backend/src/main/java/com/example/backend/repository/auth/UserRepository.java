@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("DELETE FROM OtpCode o WHERE o.user.id = :userId")
     void deleteOtpCodesForUser(@Param("userId") Long userId);
+
+    Optional<User> findByEmailIgnoreCase(String email);
 }
