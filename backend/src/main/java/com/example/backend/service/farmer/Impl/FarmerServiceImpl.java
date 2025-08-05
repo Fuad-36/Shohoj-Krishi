@@ -1,5 +1,6 @@
 package com.example.backend.service.farmer.Impl;
 
+import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
 import com.example.backend.dto.farmer.response.FarmerProfileResponse;
 import com.example.backend.entity.auth.User;
 import com.example.backend.entity.profile.FarmerProfile;
@@ -35,6 +36,44 @@ public class FarmerServiceImpl implements FarmerService {
                 .avatarUrl(profile.getAvatarUrl())
                 .phone(user.getPhone())
                 .message("Profile retrieved successfully")
+                .build();
+    }
+
+    @Override
+    public FarmerProfileResponse updateFarmerProfile(ProfileUpdateRequest request) {
+
+        User user = currentUserUtil.getCurrentUser();
+        Long userId = user.getId();
+        FarmerProfile profile = farmerProfileRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        profile.setFullName(request.getFullName());
+        profile.setNidNumber(request.getNidNumber());
+        profile.setDivision(request.getDivision());
+        profile.setDistrict(request.getDistrict());
+        profile.setUpazila(request.getUpazila());
+        profile.setUnionPorishod(request.getUnionPorishod());
+        profile.setAddress(request.getAddress());
+        profile.setFarmSizeAc(request.getFarmSizeAc());
+        profile.setFarmType(request.getFarmType());
+        profile.setAvatarUrl(request.getAvatarUrl());
+        profile.getUser().setPhone(request.getPhone());
+
+        FarmerProfile updated = farmerProfileRepository.save(profile);
+
+        return FarmerProfileResponse.builder()
+                .fullName(updated.getFullName())
+                .nidNumber(updated.getNidNumber())
+                .division(updated.getDivision())
+                .district(updated.getDistrict())
+                .upazila(updated.getUpazila())
+                .unionPorishod(updated.getUnionPorishod())
+                .address(updated.getAddress())
+                .farmSizeAc(updated.getFarmSizeAc())
+                .farmType(updated.getFarmType())
+                .avatarUrl(updated.getAvatarUrl())
+                .phone(updated.getUser().getPhone())
+                .message("Profile updated successfully")
                 .build();
     }
 }
