@@ -1,6 +1,7 @@
 package com.example.backend.service.farmer.Impl;
 
-import com.example.backend.dto.farmer.request.FarmerPostCreateRequest;
+import com.example.backend.dto.farmer.request.FarmerPostRequest;
+import com.example.backend.dto.farmer.request.FarmerPostUpdateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
 import com.example.backend.dto.farmer.response.FarmerPostResponse;
 import com.example.backend.dto.farmer.response.FarmerProfileResponse;
@@ -91,7 +92,7 @@ public class FarmerServiceImpl implements FarmerService {
     }
 
     @Override
-    public void createPost(FarmerPostCreateRequest request) {
+    public void createPost(FarmerPostRequest request) {
         User user = currentUserUtil.getCurrentUser(); // helper that gets authenticated user
         FarmerProfile profile = (FarmerProfile) farmerProfileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Farmer profile not found"));
@@ -131,6 +132,7 @@ public class FarmerServiceImpl implements FarmerService {
         return posts.stream().map(post -> FarmerPostResponse.builder()
                 .id(post.getId())
                 .cropName(post.getCropName())
+                .description(post.getDescription())
                 .cropType(post.getCropType())
                 .cropImageUrl(post.getCropImageUrl())
                 .quantity(post.getQuantity())
@@ -146,6 +148,50 @@ public class FarmerServiceImpl implements FarmerService {
                 .createdAt(post.getCreatedAt())
                 .build()
         ).toList();
+    }
+
+    @Override
+    @Transactional
+    public void updatePost(Long postId, FarmerPostUpdateRequest request) {
+        String email = currentUserUtil.getCurrentUserEmail();
+
+        FarmerPost post = farmerPostRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        // Ensure only the owner can update the post
+        if (!post.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new SecurityException("You are not authorized to update this post");
+        }
+
+        // Update allowed fields
+        post.setTitle(request.getTitle());
+        post.setCropType(request.getCropType());
+        post.setCropName(request.getCropName());
+        post.setDescription(request.getDescription());
+        post.setQuantity(request.getQuantity());
+        post.setQuantityUnit(request.getQuantityUnit());
+        post.setPricePerUnit(request.getPricePerUnit());
+        post.setHarvestDate(request.getHarvestDate());
+        post.setStatus(PostStatus.valueOf(request.getStatus()));
+        post.setCropImageUrl(request.getCropImageUrl());
+
+        // No need to call save explicitly because we're in a @Transactional context
+    }
+
+    @Override
+    @Transactional
+    public void deletePost(Long postId) {
+        Long userId = currentUserUtil.getCurrentUserId();
+
+        // Optional: Check if post exists before deleting
+        FarmerPost post = farmerPostRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new RuntimeException("You are not allowed to delete this post");
+        }
+
+        farmerPostRepository.deleteByIdAndUser_Id(postId, userId);
     }
 
 

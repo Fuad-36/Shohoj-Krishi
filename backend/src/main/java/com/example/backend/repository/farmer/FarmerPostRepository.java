@@ -15,4 +15,7 @@ public interface FarmerPostRepository extends JpaRepository<FarmerPost, Long> {
     List<FarmerPost> findAllByStatus(PostStatus status);
 
     List<FarmerPost> findAllByUser_Id(Long userId);
+
+    void deleteByIdAndUser_Id(Long postId, Long userId);
+
 }

@@ -1,6 +1,7 @@
 package com.example.backend.controller.farmer;
 
-import com.example.backend.dto.farmer.request.FarmerPostCreateRequest;
+import com.example.backend.dto.farmer.request.FarmerPostRequest;
+import com.example.backend.dto.farmer.request.FarmerPostUpdateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
 import com.example.backend.dto.farmer.response.FarmerPostResponse;
 import com.example.backend.dto.farmer.response.FarmerProfileResponse;
@@ -35,7 +36,7 @@ public class FarmerController {
     // Endpoint to create a new post
     @PostMapping("/posts")
     public ResponseEntity<Void> createPost(
-            @RequestBody FarmerPostCreateRequest request
+            @RequestBody FarmerPostRequest request
     ) {
         farmerService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).build(); // returns 201 Created
@@ -45,5 +46,21 @@ public class FarmerController {
     public ResponseEntity<List<FarmerPostResponse>> getMyPosts() {
         List<FarmerPostResponse> posts = farmerService.getMyPosts();
         return ResponseEntity.ok(posts);
+    }
+    // Endpoint to update a specific post
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<String> updatePost(
+            @PathVariable Long postId,
+            @RequestBody FarmerPostUpdateRequest request
+    ) {
+        farmerService.updatePost(postId, request);
+        return ResponseEntity.ok("Post updated successfully");
+//        return ResponseEntity.noContent().build(); // 204 No Content
+    }
+    // Endpoint to delete a specific post
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        farmerService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
 }

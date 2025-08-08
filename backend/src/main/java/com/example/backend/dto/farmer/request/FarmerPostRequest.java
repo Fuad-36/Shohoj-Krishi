@@ -1,12 +1,18 @@
 package com.example.backend.dto.farmer.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-public class FarmerPostCreateRequest {
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class FarmerPostRequest {
 
     private String title;
     private String description;
@@ -20,5 +26,6 @@ public class FarmerPostCreateRequest {
     private BigDecimal pricePerUnit;
 
     private LocalDate harvestDate;
+
 }
 
