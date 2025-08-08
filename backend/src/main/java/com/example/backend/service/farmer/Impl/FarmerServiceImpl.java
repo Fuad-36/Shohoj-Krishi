@@ -1,14 +1,20 @@
 package com.example.backend.service.farmer.Impl;
 
+import com.example.backend.dto.farmer.request.FarmerPostCreateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
 import com.example.backend.dto.farmer.response.FarmerProfileResponse;
 import com.example.backend.entity.auth.User;
+import com.example.backend.entity.posts.FarmerPost;
+import com.example.backend.entity.posts.PostStatus;
 import com.example.backend.entity.profile.FarmerProfile;
+import com.example.backend.repository.farmer.FarmerPostRepository;
 import com.example.backend.repository.profile.FarmerProfileRepository;
 import com.example.backend.service.farmer.FarmerService;
 import com.example.backend.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +22,7 @@ public class FarmerServiceImpl implements FarmerService {
 
     private final CurrentUserUtil currentUserUtil;
     private final FarmerProfileRepository farmerProfileRepository;
+    private final FarmerPostRepository farmerPostRepository;
 
     @Override
     public FarmerProfileResponse getCurrentFarmerProfile() {
@@ -75,5 +82,34 @@ public class FarmerServiceImpl implements FarmerService {
                 .phone(updated.getUser().getPhone())
                 .message("Profile updated successfully")
                 .build();
+    }
+
+    @Override
+    public void createPost(FarmerPostCreateRequest request) {
+        User user = currentUserUtil.getCurrentUser(); // helper that gets authenticated user
+        FarmerProfile profile = (FarmerProfile) farmerProfileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Farmer profile not found"));
+
+        FarmerPost post = FarmerPost.builder()
+                .user(user)
+                .title(request.getTitle())
+                .cropType(request.getCropType())
+                .description(request.getDescription())
+                .quantity(request.getQuantity())
+                .quantityUnit(request.getQuantityUnit())
+                .pricePerUnit(request.getPricePerUnit())
+                .harvestDate(request.getHarvestDate() != null ? request.getHarvestDate() : LocalDate.now())
+
+                // location from profile
+                .division(profile.getDivision())
+                .district(profile.getDistrict())
+                .upazila(profile.getUpazila())
+                .unionPorishod(profile.getUnionPorishod())
+
+                .status(PostStatus.valueOf("AVAILABLE"))
+                .build();
+
+        farmerPostRepository.save(post);
+
     }
 }
