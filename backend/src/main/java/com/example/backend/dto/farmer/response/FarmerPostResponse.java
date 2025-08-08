@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class FarmerPostResponse {
     private Long id;
     private String cropName;
+    private String description;
     private  String cropType;
     private BigDecimal quantity;
     private String quantityUnit; // kg, ton, piece, etc.
