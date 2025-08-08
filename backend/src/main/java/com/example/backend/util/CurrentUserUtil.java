@@ -14,7 +14,7 @@ public class CurrentUserUtil {
 
     private final UserRepository userRepository;
 
-    public User getCurrentUser() {
+    public  User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
