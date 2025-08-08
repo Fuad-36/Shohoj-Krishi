@@ -24,7 +24,8 @@ public class FarmerPost {
 
     private String title;
     private String description;
-
+    private String cropName; // e.g. rice, wheat, maize
+    private String cropImageUrl;
     private String cropType;
 
     @Column(precision = 10, scale = 2)
