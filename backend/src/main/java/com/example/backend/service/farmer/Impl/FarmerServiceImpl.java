@@ -2,19 +2,25 @@ package com.example.backend.service.farmer.Impl;
 
 import com.example.backend.dto.farmer.request.FarmerPostCreateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
+import com.example.backend.dto.farmer.response.FarmerPostResponse;
 import com.example.backend.dto.farmer.response.FarmerProfileResponse;
 import com.example.backend.entity.auth.User;
 import com.example.backend.entity.posts.FarmerPost;
 import com.example.backend.entity.posts.PostStatus;
 import com.example.backend.entity.profile.FarmerProfile;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.farmer.FarmerPostRepository;
 import com.example.backend.repository.profile.FarmerProfileRepository;
 import com.example.backend.service.farmer.FarmerService;
 import com.example.backend.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -94,6 +100,8 @@ public class FarmerServiceImpl implements FarmerService {
                 .user(user)
                 .title(request.getTitle())
                 .cropType(request.getCropType())
+                .cropImageUrl(request.getCropImageUrl())
+                .cropName(request.getCropName())
                 .description(request.getDescription())
                 .quantity(request.getQuantity())
                 .quantityUnit(request.getQuantityUnit())
@@ -112,4 +120,33 @@ public class FarmerServiceImpl implements FarmerService {
         farmerPostRepository.save(post);
 
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FarmerPostResponse> getMyPosts() {
+        List<FarmerPost> posts = farmerPostRepository.findAllByUser_Id(currentUserUtil.getCurrentUserId());
+        if (posts.isEmpty()) {
+            throw new ResourceNotFoundException("No posts found for the current user");
+        }
+        return posts.stream().map(post -> FarmerPostResponse.builder()
+                .id(post.getId())
+                .cropName(post.getCropName())
+                .cropType(post.getCropType())
+                .cropImageUrl(post.getCropImageUrl())
+                .quantity(post.getQuantity())
+                .quantityUnit(post.getQuantityUnit())
+                .pricePerUnit(post.getPricePerUnit())
+                .harvestDate(post.getHarvestDate())
+                .status(post.getStatus().name())
+                .division(post.getDivision())
+                .district(post.getDistrict())
+                .upazila(post.getUpazila())
+                .unionPorishod(post.getUnionPorishod())
+                .cropImageUrl(post.getCropImageUrl())
+                .createdAt(post.getCreatedAt())
+                .build()
+        ).toList();
+    }
+
+
 }

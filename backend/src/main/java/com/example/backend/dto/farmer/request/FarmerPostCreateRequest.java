@@ -10,7 +10,9 @@ public class FarmerPostCreateRequest {
 
     private String title;
     private String description;
+    private String cropName;
     private String cropType;
+    private String cropImageUrl;
 
     private BigDecimal quantity;
     private String quantityUnit;
