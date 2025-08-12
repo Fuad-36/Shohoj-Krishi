@@ -12,5 +12,10 @@ public interface BuyerService {
 
     BuyerProfileResponse updateBuyerProfile(BuyerProfileUpdateRequest request);
 
-    Page<BuyerCropViewResponse> getAvailableCrops(Pageable pageable);
+    Page<BuyerCropViewResponse> getAvailableCrops(Pageable pageable,
+                                                  String cropName,
+                                                  String cropType,
+                                                  String division,
+                                                  String district,
+                                                  String upazila);
 }

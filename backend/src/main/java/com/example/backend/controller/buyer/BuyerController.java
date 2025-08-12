@@ -29,10 +29,19 @@ public class BuyerController {
         return buyerService.updateBuyerProfile(request);
     }
     // Endpoint to view all crops available for buyers
+
     @GetMapping("/crops")
-    public Page<BuyerCropViewResponse> getAvailableCrops(Pageable pageable) {
-        return buyerService.getAvailableCrops(pageable);
+    public Page<BuyerCropViewResponse> getAvailableCrops(
+            @RequestParam(required = false) String cropName,
+            @RequestParam(required = false) String cropType,
+            @RequestParam(required = false) String division,
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false) String upazila,
+            Pageable pageable
+    ) {
+        return buyerService.getAvailableCrops(pageable,cropName, cropType, division, district, upazila);
     }
+
     //    Supports pagination & sorting out of the box via Spring’s Pageable.
     //    URL example to fetch first 10 crops, newest first:
     //            /api/buyer/crops?page=0&size=10&sort=createdAt,desc

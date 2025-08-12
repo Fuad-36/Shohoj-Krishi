@@ -14,10 +14,15 @@ import com.example.backend.repository.profile.BuyerProfileRepository;
 import com.example.backend.repository.profile.FarmerProfileRepository;
 import com.example.backend.service.buyer.BuyerService;
 import com.example.backend.util.CurrentUserUtil;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -84,10 +89,43 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public Page<BuyerCropViewResponse> getAvailableCrops(Pageable pageable) {
-        return farmerPostRepository
-                .findByStatus(PostStatus.AVAILABLE, pageable)
-                .map(this::mapToBuyerResponse);
+    public Page<BuyerCropViewResponse> getAvailableCrops(
+            Pageable pageable,
+            String cropName,
+            String cropType,
+            String division,
+            String district,
+            String upazila
+    ) {
+        return farmerPostRepository.findAll((root, query, cb) -> {
+            // Join User -> FarmerProfile to avoid N+1 problem
+            root.fetch("user", JoinType.LEFT);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("status"), PostStatus.AVAILABLE));
+
+            if (cropName != null && !cropName.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("cropName")), "%" + cropName.toLowerCase() + "%"));
+            }
+
+            if (cropType != null && !cropType.isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("cropType")), cropType.toLowerCase()));
+            }
+
+            if (division != null && !division.isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("division")), division.toLowerCase()));
+            }
+
+            if (district != null && !district.isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("district")), district.toLowerCase()));
+            }
+
+            if (upazila != null && !upazila.isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("upazila")), upazila.toLowerCase()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable).map(this::mapToBuyerResponse);
     }
 
     private BuyerCropViewResponse mapToBuyerResponse(FarmerPost post) {
@@ -112,4 +150,5 @@ public class BuyerServiceImpl implements BuyerService {
                 .createdAt(post.getCreatedAt())
                 .build();
     }
+
 }
