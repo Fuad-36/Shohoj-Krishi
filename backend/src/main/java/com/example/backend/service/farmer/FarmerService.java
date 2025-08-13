@@ -1,5 +1,6 @@
 package com.example.backend.service.farmer;
 
+import com.example.backend.dto.buyer.resoponse.FarmerPostDetailsResponse;
 import com.example.backend.dto.farmer.request.FarmerPostRequest;
 import com.example.backend.dto.farmer.request.FarmerPostUpdateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
@@ -16,4 +17,5 @@ public interface FarmerService {
     void updatePost(Long postId, FarmerPostUpdateRequest request);
     void deletePost(Long postId);
 
+    FarmerPostDetailsResponse getCropDetailsById(Long id);
 }
