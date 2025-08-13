@@ -1,5 +1,6 @@
 package com.example.backend.service.farmer.Impl;
 
+import com.example.backend.dto.buyer.resoponse.FarmerPostDetailsResponse;
 import com.example.backend.dto.farmer.request.FarmerPostRequest;
 import com.example.backend.dto.farmer.request.FarmerPostUpdateRequest;
 import com.example.backend.dto.farmer.request.ProfileUpdateRequest;
@@ -192,6 +193,41 @@ public class FarmerServiceImpl implements FarmerService {
         }
 
         farmerPostRepository.deleteByIdAndUser_Id(postId, userId);
+    }
+
+    @Override
+    public FarmerPostDetailsResponse getCropDetailsById(Long postId) {
+        FarmerPost post = farmerPostRepository.findById(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        Long userId = post.getUser().getId();
+        FarmerProfile profile = farmerProfileRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Farmer profile not found"));
+
+        return FarmerPostDetailsResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .description(post.getDescription())
+                .cropName(post.getCropName())
+                .cropType(post.getCropType())
+                .pricePerUnit(post.getPricePerUnit())
+                .quantity(post.getQuantity())
+                .quantityUnit(post.getQuantityUnit())
+                .cropImageUrl(post.getCropImageUrl())
+                .harvestDate(post.getHarvestDate())
+                .status(post.getStatus())
+
+                // Farmer info
+                .farmerName(profile.getFullName())
+                .farmerPhone(post.getUser().getPhone())
+                .farmerEmail(post.getUser().getEmail())
+                .division(post.getDivision())
+                .district(post.getDistrict())
+                .upazila(post.getUpazila())
+                .unionPorishod(post.getUnionPorishod())
+                .address(profile.getAddress())
+
+                .createdAt(post.getCreatedAt())
+                .build();
     }
 
 
