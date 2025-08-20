@@ -23,7 +23,7 @@ public class AuthToken {
     private User user;
 
     @Column(nullable = false, unique = true)
-    private UUID refreshToken;
+    private String refreshToken;
 
     @Column(columnDefinition = "inet")
     private String ipAddress;

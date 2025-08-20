@@ -1,7 +1,10 @@
 package com.example.backend.controller.auth;
 
+import com.example.backend.dto.auth.request.LoginRequest;
+import com.example.backend.dto.auth.request.RefreshTokenRequest;
 import com.example.backend.dto.auth.request.RegisterRequest;
 import com.example.backend.dto.auth.request.VerifyOtpRequest;
+import com.example.backend.dto.auth.response.AuthResponse;
 import com.example.backend.dto.auth.response.MessageResponse;
 import com.example.backend.dto.auth.response.RegisterResponse;
 import com.example.backend.service.auth.AuthService;
@@ -34,5 +37,15 @@ public class AuthController {
     public ResponseEntity<MessageResponse> resendOtp(@RequestParam String email) {
         MessageResponse response = authService.resendOtp(email);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 }
