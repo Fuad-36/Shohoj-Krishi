@@ -50,15 +50,45 @@ public class GeminiChatService {
     private PersonalizedChatResponse generateContextualResponse(PersonalizedChatRequest request, FarmerContext context) {
         ChatType detectedChatType = chatIntentClassifier.detectChatType(request.getMessage());
         try {
-            // Translate Bengali to English for better AI understanding
-            String englishMessage = translationService.translateToEnglish(request.getMessage());
-            String personalizedPrompt = buildPersonalizedPrompt(englishMessage, detectedChatType, context);
-            String response = callGeminiAPI(personalizedPrompt);
+            // Only translate user message if it's in Bengali and translation is working properly
+            String englishMessage = request.getMessage();
+            if (containsBengaliScript(request.getMessage())) {
+                String translated = translationService.translateToEnglish(request.getMessage());
+                log.info("Original message: {}", request.getMessage());
+                log.info("Translated message: {}", translated);
 
-            // If response language is "bn", translate back to Bengali
+                // Check if translation was successful (not URL encoded garbage)
+                if (translated != null && !translated.contains("%") && !translated.equals(request.getMessage())) {
+                    englishMessage = translated;
+                    log.info("Using translated message for prompt");
+                } else {
+                    log.warn("Translation failed or returned garbage, using original message");
+                    // Use original message and let Gemini handle Bengali directly
+                    englishMessage = request.getMessage();
+                }
+            }
+
+            String personalizedPrompt = buildPersonalizedPrompt(englishMessage, detectedChatType, context);
+            log.info("Prompt length: {} characters", personalizedPrompt.length());
+
+            String response = callGeminiAPI(personalizedPrompt);
+            log.info("Gemini response: {}", response);
+
+            // For Bengali requests, use response as-is since Gemini can respond in Bengali
             String finalResponse = response;
-            if ("bn".equals(request.getLanguage())) {
-                finalResponse = translationService.translateToBengali(response);
+
+            // Only translate if response is in English and user wants Bengali
+            if ("bn".equals(request.getLanguage()) && !containsBengaliScript(response)) {
+                String translatedResponse = translationService.translateToBengali(response);
+                // Check if translation was successful
+                if (translatedResponse != null && !translatedResponse.contains("QUERY LENGTH LIMIT EXCEEDED")
+                        && !translatedResponse.equals(response)) {
+                    finalResponse = translatedResponse;
+                    log.info("Successfully translated response to Bengali");
+                } else {
+                    log.warn("Translation of response failed, using original response");
+                    // Keep the original response
+                }
             }
 
             return PersonalizedChatResponse.builder()
@@ -71,7 +101,7 @@ public class GeminiChatService {
                     .build();
 
         } catch (Exception e) {
-            log.error("Error generating contextual response: {}", e.getMessage());
+            log.error("Error generating contextual response: {}", e.getMessage(), e);
             return createErrorResponse(detectedChatType, request.getLanguage());
         }
     }
@@ -85,7 +115,7 @@ public class GeminiChatService {
 
             // If response language is "bn", translate back to Bengali
             String finalResponse = response;
-            if ("bn".equals(request.getLanguage())) {
+            if ("bn".equals(request.getLanguage()) && !containsBengaliScript(response)) {
                 finalResponse = translationService.translateToBengali(response);
             }
 
@@ -98,7 +128,7 @@ public class GeminiChatService {
                     .build();
 
         } catch (Exception e) {
-            log.error("Error generating general response: {}", e.getMessage());
+            log.error("Error generating general response: {}", e.getMessage(), e);
             return createErrorResponse(detectedChatType, request.getLanguage());
         }
     }
@@ -106,91 +136,49 @@ public class GeminiChatService {
     private String buildPersonalizedPrompt(String userMessage, ChatType chatType, FarmerContext context) {
         StringBuilder prompt = new StringBuilder();
 
-        // System instructions for Gemini
-        prompt.append("You are Shohoj Krishok, an expert agricultural assistant for Bangladeshi farmers. ");
-        prompt.append("You provide practical, actionable advice in simple language. ");
-        prompt.append("Always be supportive, encouraging, and focus on solutions. ");
+        // Very concise system instructions
+        prompt.append("You are Shohoj Krishok, Bangladesh farming assistant. Give practical advice in simple language. ");
 
-        // Add farmer-specific context
-        prompt.append("\nFarmer Profile:\n");
-        prompt.append("Name: ").append(context.getFarmerName()).append("\n");
-        prompt.append("Location: ").append(context.getLocation()).append("\n");
-
-        if (context.getFarmSize() != null) {
-            prompt.append("Farm Size: ").append(context.getFarmSize()).append(" acres\n");
+        // If the question is in Bengali, respond in Bengali
+        if (containsBengaliScript(userMessage)) {
+            prompt.append("Respond in Bengali.\n\n");
+        } else {
+            prompt.append("Respond in English.\n\n");
         }
 
-        if (context.getFarmType() != null) {
-            prompt.append("Farm Type: ").append(context.getFarmType()).append("\n");
-        }
+        // Minimal context - only essential info
+        prompt.append("Farmer: ").append(context.getFarmerName())
+                .append(", ").append(context.getLocation().split(",")[0]); // Just first part of location
 
-        if (!context.getCurrentCrops().isEmpty()) {
-            prompt.append("Current Crops: ").append(String.join(", ", context.getCurrentCrops())).append("\n");
-        }
+        // Only include valid crops
+        List<String> validCrops = context.getCurrentCrops().stream()
+                .filter(crop -> !crop.equals("Unknown Crop") && !crop.equals("Weed"))
+                .limit(2) // Limit to 2 crops to save space
+                .collect(Collectors.toList());
 
-        // Add recent posts context
-        if (!context.getRecentPosts().isEmpty()) {
-            prompt.append("Recent Harvest/Sales:\n");
-            context.getRecentPosts().stream()
-                    .limit(3)
-                    .forEach(post -> {
-                        prompt.append("- ").append(post.getCropName())
-                                .append(": ").append(post.getQuantity()).append(" ").append(post.getQuantityUnit())
-                                .append(" at ").append(post.getPricePerUnit()).append(" per unit")
-                                .append(" (").append(post.getHarvestDate()).append(")\n");
-                    });
+        if (!validCrops.isEmpty()) {
+            prompt.append(", Crops: ").append(String.join(", ", validCrops));
         }
+        prompt.append("\n\n");
 
-        // Add chat type specific instructions
-        prompt.append("\nTask: ");
+        // Very brief task description
         switch (chatType) {
-            case CROP_ADVICE:
-                prompt.append("Provide specific crop cultivation advice considering their location, current crops, and farming experience.");
-                break;
-
-            case MARKET_PRICE:
-                prompt.append("Provide current market price information and selling strategies for their crops and location.");
-                break;
-
-            case FERTILIZER_ADVICE:
-                prompt.append("Recommend appropriate fertilizers for their specific crops, farm size, and local soil conditions.");
-                break;
-
-            case WEATHER_ADVICE:
-                prompt.append("Give weather-related farming advice specific to ").append(context.getLocation()).append(" region.");
-                break;
-
             case PEST_DISEASE:
-                prompt.append("Help identify and provide treatment solutions for pest/disease issues affecting their crops.");
+                prompt.append("Help with pest/disease in crops. ");
                 break;
-
-            case SELLING_ADVICE:
-                prompt.append("Provide marketing and selling strategies based on their crops and recent harvest data.");
+            case CROP_ADVICE:
+                prompt.append("Give crop cultivation advice. ");
                 break;
-
-            case GOVERNMENT_SCHEMES:
-                prompt.append("Inform about relevant government agricultural schemes and subsidies for their area and farm size.");
+            case FERTILIZER_ADVICE:
+                prompt.append("Recommend fertilizers. ");
                 break;
-
-            case LOAN_ADVICE:
-                prompt.append("Provide agricultural loan guidance suitable for their farm size and farming activities.");
-                break;
-
             default:
-                prompt.append("Provide helpful farming advice considering their specific situation.");
+                prompt.append("Give farming advice. ");
                 break;
         }
 
-        prompt.append("\n\nGuidelines:\n");
-        prompt.append("- Keep response practical and actionable\n");
-        prompt.append("- Use simple, clear language\n");
-        prompt.append("- Provide specific steps when possible\n");
-        prompt.append("- Consider Bangladesh's climate and farming conditions\n");
-        prompt.append("- Be encouraging and supportive\n");
-        prompt.append("- Limit response to 150 words\n");
-
-        prompt.append("\nFarmer's Question: ").append(userMessage);
-        prompt.append("\n\nYour Response:");
+        prompt.append("Keep answer under 100 words.\n\n");
+        prompt.append("Q: ").append(userMessage).append("\nA:");
 
         return prompt.toString();
     }
@@ -198,44 +186,39 @@ public class GeminiChatService {
     private String buildGeneralPrompt(String userMessage, ChatType chatType) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("You are Shohoj Krishok, an expert agricultural assistant for Bangladeshi farmers. ");
-        prompt.append("You provide practical, actionable advice in simple language. ");
-        prompt.append("Always be supportive, encouraging, and focus on solutions. ");
+        prompt.append("You are Shohoj Krishok, Bangladesh farming assistant. Give practical advice in simple language. ");
 
-        prompt.append("\nTask: ");
+        if (containsBengaliScript(userMessage)) {
+            prompt.append("Respond in Bengali.\n\n");
+        } else {
+            prompt.append("Respond in English.\n\n");
+        }
+
         switch (chatType) {
-            case CROP_ADVICE:
-                prompt.append("Provide general crop cultivation advice for Bangladeshi farmers.");
+            case PEST_DISEASE:
+                prompt.append("Help with pest/disease in crops. ");
                 break;
-            case MARKET_PRICE:
-                prompt.append("Provide general market price guidance and selling tips for Bangladesh's agricultural markets.");
+            case CROP_ADVICE:
+                prompt.append("Give crop cultivation advice. ");
                 break;
             case FERTILIZER_ADVICE:
-                prompt.append("Recommend fertilizers suitable for common crops in Bangladesh.");
-                break;
-            case WEATHER_ADVICE:
-                prompt.append("Give general weather-related farming advice for Bangladesh's climate.");
+                prompt.append("Recommend fertilizers. ");
                 break;
             default:
-                prompt.append("Provide helpful general farming advice for Bangladeshi farmers.");
+                prompt.append("Give farming advice. ");
                 break;
         }
 
-        prompt.append("\n\nGuidelines:\n");
-        prompt.append("- Keep response practical and actionable\n");
-        prompt.append("- Use simple, clear language\n");
-        prompt.append("- Consider Bangladesh's climate and farming conditions\n");
-        prompt.append("- Be encouraging and supportive\n");
-        prompt.append("- Limit response must be under 100 characters\n");
-
-        prompt.append("\nFarmer's Question: ").append(userMessage);
-        prompt.append("\n\nYour Response:");
+        prompt.append("Keep answer under 80 words.\n\n");
+        prompt.append("Q: ").append(userMessage).append("\nA:");
 
         return prompt.toString();
     }
 
     private String callGeminiAPI(String prompt) {
         try {
+            log.info("Calling Gemini API with prompt length: {}", prompt.length());
+
             // Build Gemini request
             GeminiRequest request = GeminiRequest.builder()
                     .contents(List.of(
@@ -246,7 +229,7 @@ public class GeminiChatService {
                     ))
                     .generationConfig(GenerationConfig.builder()
                             .temperature(config.getTemperature())
-                            .maxOutputTokens(config.getMaxTokens())
+                            .maxOutputTokens(Math.min(config.getMaxTokens(), 4092)) // Limit output tokens to prevent MAX_TOKENS issue
                             .topP(0.8)
                             .topK(40)
                             .build())
@@ -261,17 +244,21 @@ public class GeminiChatService {
 
             HttpEntity<GeminiRequest> entity = new HttpEntity<>(request, headers);
 
+            log.info("Making request to Gemini API: {}", uri.replaceAll("key=.*", "key=***"));
+
             ResponseEntity<GeminiResponse> response = restTemplate.postForEntity(uri, entity, GeminiResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return extractTextFromGeminiResponse(response.getBody());
+                String extractedText = extractTextFromGeminiResponse(response.getBody());
+                log.info("Successfully extracted text from Gemini response");
+                return extractedText;
             }
 
             log.error("Gemini API call failed with status: {}", response.getStatusCode());
             return "আমি এই মুহূর্তে আপনার প্রশ্নের উত্তর দিতে পারছি না। দয়া করে কিছুক্ষণ পরে আবার চেষ্টা করুন।";
 
         } catch (Exception e) {
-            log.error("Gemini API call failed: {}", e.getMessage());
+            log.error("Gemini API call failed: {}", e.getMessage(), e);
             return "আমি এই মুহূর্তে আপনার প্রশ্নের উত্তর দিতে পারছি না। দয়া করে কিছুক্ষণ পরে আবার চেষ্টা করুন।";
         }
     }
@@ -303,11 +290,21 @@ public class GeminiChatService {
     private String extractTextFromGeminiResponse(GeminiResponse response) {
         if (response != null && response.getCandidates() != null && !response.getCandidates().isEmpty()) {
             Candidate candidate = response.getCandidates().get(0);
+
+            // Check if response was cut off due to MAX_TOKENS
+            if ("MAX_TOKENS".equals(candidate.getFinishReason())) {
+                log.warn("Gemini response was cut off due to MAX_TOKENS limit");
+            }
+
             if (candidate.getContent() != null && candidate.getContent().getParts() != null &&
                     !candidate.getContent().getParts().isEmpty()) {
-                return candidate.getContent().getParts().get(0).getText().trim();
+                String text = candidate.getContent().getParts().get(0).getText();
+                return text != null ? text.trim() : "আমি এই মুহূর্তে আপনার প্রশ্নের উত্তর দিতে পারছি না।";
+            } else {
+                log.warn("No content parts found in Gemini response, candidate: {}", candidate);
             }
         }
+        log.warn("No valid content found in Gemini response: {}", response);
         return "আমি এই মুহূর্তে আপনার প্রশ্নের উত্তর দিতে পারছি না।";
     }
 
@@ -315,20 +312,24 @@ public class GeminiChatService {
         List<String> suggestions = new ArrayList<>();
 
         // Generate suggestions based on farmer's crops and context
-        if (!context.getCurrentCrops().isEmpty()) {
-            String mainCrop = context.getCurrentCrops().get(0);
+        List<String> validCrops = context.getCurrentCrops().stream()
+                .filter(crop -> !crop.equals("Unknown Crop") && !crop.equals("Weed"))
+                .collect(Collectors.toList());
+
+        if (!validCrops.isEmpty()) {
+            String mainCrop = validCrops.get(0);
             suggestions.add(mainCrop + " এর বাজার দাম কেমন?");
             suggestions.add(mainCrop + " এর জন্য কোন সার ভালো?");
             suggestions.add(mainCrop + " এর রোগ-বালাই প্রতিরোধ কিভাবে করবো?");
+        } else {
+            // Default suggestions for rice (ধান) since that's what user is asking about
+            suggestions.add("ধানের বাজার দাম কেমন?");
+            suggestions.add("ধানের জন্য কোন সার ভালো?");
+            suggestions.add("ধানের রোগ-বালাই প্রতিরোধ কিভাবে করবো?");
         }
 
-        // Add location-specific suggestions
-        suggestions.add(context.getLocation() + " এলাকার আবহাওয়া পরামর্শ চাই");
-
-        // Add farm size specific suggestions
-        if (context.getFarmSize() != null) {
-            suggestions.add(context.getFarmSize() + " একর জমির জন্য ঋণ পরামর্শ চাই");
-        }
+        // Add a general suggestion
+        suggestions.add("আবহাওয়া পরামর্শ চাই");
 
         return suggestions.stream().limit(4).collect(Collectors.toList());
     }
@@ -358,5 +359,9 @@ public class GeminiChatService {
                 .relatedSuggestions(errorSuggestions)
                 .metadata(Map.of("error", true, "model", "gemini"))
                 .build();
+    }
+
+    private boolean containsBengaliScript(String text) {
+        return text != null && text.matches(".*[\\u0980-\\u09FF].*");
     }
 }

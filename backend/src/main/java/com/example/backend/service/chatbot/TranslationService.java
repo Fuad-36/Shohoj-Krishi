@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -32,32 +33,41 @@ public class TranslationService {
     }
 
     public String translateToBengali(String englishText) {
-        log.info(englishText);
+        log.info("Translating to Bengali: {}", englishText);
         if (StringUtils.isBlank(englishText)) return "";
 
-        if (containsBengaliScript(englishText)) return englishText;
-
-        if (englishText.length() > MAX_FREE_QUERY_LENGTH) {
-
-            log.warn("English Translation text exceeds free tier limit: {} chars", englishText.length());
-            englishText = englishText.substring(0, MAX_FREE_QUERY_LENGTH); // truncate
+        if (containsBengaliScript(englishText)) {
+            log.info("Text already contains Bengali script, returning as-is");
+            return englishText;
         }
 
-        return safeTranslate(englishText, "en", "bn");
+        if (englishText.length() > MAX_FREE_QUERY_LENGTH) {
+            log.warn("English Translation text exceeds free tier limit: {} chars", englishText.length());
+            return "দুঃখিত, টেক্সটটি অনুবাদের জন্য অনেক বড়।"; // "Sorry, text is too long for translation"
+        }
+
+        String result = safeTranslate(englishText, "en", "bn");
+        log.info("Translation result: {}", result);
+        return result;
     }
 
     public String translateToEnglish(String bengaliText) {
-        log.info(bengaliText);
+        log.info("Translating to English: {}", bengaliText);
         if (StringUtils.isBlank(bengaliText)) return "";
 
-        if (!containsBengaliScript(bengaliText)) return bengaliText;
+        if (!containsBengaliScript(bengaliText)) {
+            log.info("Text doesn't contain Bengali script, returning as-is");
+            return bengaliText;
+        }
 
         if (bengaliText.length() > MAX_FREE_QUERY_LENGTH) {
             log.warn("Bengali Translation text exceeds free tier limit: {} chars", bengaliText.length());
-            bengaliText = bengaliText.substring(0, MAX_FREE_QUERY_LENGTH);
+            return "Text too long for translation";
         }
 
-        return safeTranslate(bengaliText, "bn", "en");
+        String result = safeTranslate(bengaliText, "bn", "en");
+        log.info("Translation result: {}", result);
+        return result;
     }
 
     private String safeTranslate(String text, String sourceLanguage, String targetLanguage) {
@@ -121,25 +131,54 @@ public class TranslationService {
 
     private String translateWithMyMemoryService(String text, String sourceLanguage, String targetLanguage) {
         try {
-            if (sourceLanguage.equals("bn") ) sourceLanguage+="-IN";
-            if (targetLanguage.equals("bn") ) targetLanguage+="-IN";
+            if (sourceLanguage.equals("bn")) sourceLanguage += "-IN";
+            if (targetLanguage.equals("bn")) targetLanguage += "-IN";
             String langPair = sourceLanguage + "|" + targetLanguage;
+
+            // Double encode to avoid URL issues
+            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
             String url = String.format("https://api.mymemory.translated.net/get?q=%s&langpair=%s",
-                    URLEncoder.encode(text, StandardCharsets.UTF_8),
-                    langPair);
+                    encodedText, langPair);
+
+            log.info("Calling MyMemory API: {} with langpair: {}", url.substring(0, Math.min(url.length(), 100)), langPair);
 
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                log.info("MyMemory response: {}", response.getBody());
+
                 Object responseDataObj = response.getBody().get("responseData");
                 if (responseDataObj instanceof Map) {
                     Map<String, Object> responseData = (Map<String, Object>) responseDataObj;
                     Object translatedText = responseData.get("translatedText");
+
                     if (translatedText instanceof String) {
-                        return (String) translatedText;
+                        String result = (String) translatedText;
+
+                        // Check if result looks like URL encoded garbage
+                        if (result.contains("%") && result.matches(".*%[0-9A-F]{2}.*")) {
+                            log.warn("Detected URL encoded response, attempting to decode: {}", result);
+                            try {
+                                result = URLDecoder.decode(result, StandardCharsets.UTF_8);
+                                log.info("Decoded result: {}", result);
+                            } catch (Exception e) {
+                                log.error("Failed to decode URL encoded response: {}", e.getMessage());
+                                return text; // Return original text if decoding fails
+                            }
+                        }
+
+                        // Additional validation - if result still looks like garbage, return original
+                        if (result.contains("%") || result.length() > text.length() * 3) {
+                            log.warn("Translation result still appears to be garbage, returning original text");
+                            return text;
+                        }
+
+                        return result;
                     } else {
-                        log.warn("MyMemory returned unexpected format: {}", responseData);
+                        log.warn("MyMemory returned unexpected translatedText format: {}", responseData);
                     }
+                } else {
+                    log.warn("MyMemory returned unexpected responseData format: {}", response.getBody());
                 }
             } else {
                 log.warn("MyMemory translation failed with status: {}", response.getStatusCode());
@@ -149,6 +188,7 @@ public class TranslationService {
             log.error("MyMemory translation error: {}", e.getMessage());
         }
 
+        log.info("Returning original text as fallback");
         return text; // fallback to original text
     }
 

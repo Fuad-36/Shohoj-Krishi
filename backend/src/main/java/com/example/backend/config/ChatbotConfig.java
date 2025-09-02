@@ -15,7 +15,7 @@ public class ChatbotConfig {
     private String geminiModel = "gemini-2.5-flash"; // Free tier model - NO COST
     private String geminiBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
     private double temperature = 0.7;
-    private int maxTokens = 2048; // Gemini free tier supports up to 2048 tokens
+    private int maxTokens = 4092; // Gemini free tier supports up to 2048 tokens
     private int maxContextLength = 10000; // Characters for context
     private int safetyLevel = 2; // 0-4, higher is more restrictive
 
