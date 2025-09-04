@@ -34,8 +34,6 @@ build/
 
 
 *.md
-.env
-.env
 .env.*
 *.log
 *.log.*

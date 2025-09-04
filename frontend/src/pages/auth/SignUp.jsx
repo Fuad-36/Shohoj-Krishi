@@ -370,7 +370,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="e.g., +1234567890 or 1234567890"
+												placeholder="e.g., 01700000000"
 											/>
 										</div>
 										{errors.phone && (
