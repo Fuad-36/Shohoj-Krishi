@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Custom color palette optimized for agricultural application */
+  --color-primary-50: oklch(0.99 0.02 120);
+  --color-primary-100: oklch(0.97 0.04 125);
+  --color-primary-200: oklch(0.93 0.08 128);
+  --color-primary-300: oklch(0.87 0.12 132);
+  --color-primary-400: oklch(0.78 0.15 135);
+  --color-primary-500: oklch(0.69 0.18 138);
+  --color-primary-600: oklch(0.59 0.15 140);
+  --color-primary-700: oklch(0.49 0.12 142);
+  --color-primary-800: oklch(0.39 0.09 144);
+  --color-primary-900: oklch(0.29 0.06 146);
+
+  --color-secondary-50: oklch(0.99 0.02 75);
+  --color-secondary-100: oklch(0.97 0.05 78);
+  --color-secondary-200: oklch(0.93 0.11 82);
+  --color-secondary-300: oklch(0.87 0.18 85);
+  --color-secondary-400: oklch(0.79 0.22 87);
+  --color-secondary-500: oklch(0.71 0.18 89);
+  --color-secondary-600: oklch(0.61 0.15 91);
+  --color-secondary-700: oklch(0.51 0.12 93);
+  --color-secondary-800: oklch(0.41 0.09 95);
+  --color-secondary-900: oklch(0.31 0.06 97);
+
+  --color-earth-50: oklch(0.99 0.01 50);
+  --color-earth-100: oklch(0.97 0.03 52);
+  --color-earth-200: oklch(0.93 0.07 55);
+  --color-earth-300: oklch(0.87 0.12 58);
+  --color-earth-400: oklch(0.79 0.16 60);
+  --color-earth-500: oklch(0.69 0.14 62);
+  --color-earth-600: oklch(0.59 0.12 64);
+  --color-earth-700: oklch(0.49 0.10 66);
+  --color-earth-800: oklch(0.39 0.08 68);
+  --color-earth-900: oklch(0.29 0.06 70);
+
+  --color-accent-50: oklch(0.99 0.02 220);
+  --color-accent-100: oklch(0.97 0.05 225);
+  --color-accent-200: oklch(0.93 0.11 230);
+  --color-accent-300: oklch(0.87 0.18 235);
+  --color-accent-400: oklch(0.79 0.22 240);
+  --color-accent-500: oklch(0.69 0.18 245);
+  --color-accent-600: oklch(0.59 0.15 250);
+  --color-accent-700: oklch(0.49 0.12 255);
+  --color-accent-800: oklch(0.39 0.09 260);
+  --color-accent-900: oklch(0.29 0.06 265);
+
+  /* Typography - properly mapped font families */
+  --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-family-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Custom breakpoint */
+  --breakpoint-3xl: 1920px;
+
+  /* Custom animations */
+  --animate-fade-in: fade-in 0.5s ease-in-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-bounce-gentle: bounce-gentle 2s infinite;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-primary-50 text-gray-900 font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-primary-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-primary-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-95;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-lg border-2 border-primary-600 bg-transparent px-6 py-3 text-sm font-medium text-primary-600 transition-all duration-200 hover:bg-primary-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-95;
+  }
+
+  .card {
+    @apply rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
+  }
+
+  .text-gradient {
+    @apply bg-linear-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px color-mix(in oklch, var(--color-primary-600) 20%, transparent);
+  }
+
+  .animate-pulse-gentle {
+    animation: pulse-gentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 2s infinite;
+  }
+}
+
+@keyframes pulse-gentle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
