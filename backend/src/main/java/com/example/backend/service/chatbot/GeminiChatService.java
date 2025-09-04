@@ -364,4 +364,33 @@ public class GeminiChatService {
     private boolean containsBengaliScript(String text) {
         return text != null && text.matches(".*[\\u0980-\\u09FF].*");
     }
+
+    public String generateTextFromPrompt(String prompt, String language) {
+        try {
+            String response = callGeminiAPI(prompt);
+
+            if (response == null || response.isBlank()) {
+                log.warn("Gemini returned empty response for prompt");
+                return null;
+            }
+
+            // If the caller asked for Bengali and Gemini returned English, translate it
+            if ("bn".equals(language) && !containsBengaliScript(response)) {
+                try {
+                    String translated = translationService.translateToBengali(response);
+                    if (translated != null && !translated.isBlank() && !translated.contains("QUERY LENGTH LIMIT EXCEEDED")) {
+                        return translated;
+                    } else {
+                        log.warn("TranslationService returned unusable translation, falling back to original Gemini response");
+                    }
+                } catch (Exception te) {
+                    log.warn("Translation failed: {}", te.getMessage());
+                }
+            }
+            return response;
+        } catch (Exception e) {
+            log.error("generateTextFromPrompt failed: {}", e.getMessage(), e);
+            return null;
+        }
+    }
 }
