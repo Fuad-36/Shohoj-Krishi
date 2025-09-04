@@ -43,32 +43,39 @@ apiClient.interceptors.response.use(
 
 // Authentication API endpoints
 export const authAPI = {
-	// Login user
-	login: (credentials) => apiClient.post("/auth/login", credentials),
-
-	// Register user
+	// Register user - matches API documentation
 	register: (userData) => apiClient.post("/auth/register", userData),
 
-	// Verify token
+	// Verify OTP sent during registration
+	verifyOTP: (otpData) => apiClient.post("/auth/verify-otp", otpData),
+
+	// Resend OTP for email verification
+	resendOTP: (email) =>
+		apiClient.post(`/auth/resend-otp?email=${encodeURIComponent(email)}`),
+
+	// Login user (to be implemented later when backend provides login endpoint)
+	login: (credentials) => apiClient.post("/auth/login", credentials),
+
+	// Verify token (to be implemented later)
 	verifyToken: () => apiClient.get("/auth/verify"),
 
-	// Logout user
+	// Logout user (to be implemented later)
 	logout: () => apiClient.post("/auth/logout"),
 
-	// Refresh token
+	// Refresh token (to be implemented later)
 	refreshToken: () => apiClient.post("/auth/refresh"),
 
-	// Update user profile
+	// Update user profile (to be implemented later)
 	updateProfile: (updateData) => apiClient.put("/auth/profile", updateData),
 
-	// Change password
+	// Change password (to be implemented later)
 	changePassword: (passwordData) =>
 		apiClient.put("/auth/change-password", passwordData),
 
-	// Forgot password
+	// Forgot password (to be implemented later)
 	forgotPassword: (email) => apiClient.post("/auth/forgot-password", { email }),
 
-	// Reset password
+	// Reset password (to be implemented later)
 	resetPassword: (resetData) =>
 		apiClient.post("/auth/reset-password", resetData),
 };

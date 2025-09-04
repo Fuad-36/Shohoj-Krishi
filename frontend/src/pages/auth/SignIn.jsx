@@ -10,7 +10,9 @@ import {
 	Lock,
 	Loader2,
 	AlertCircle,
+	CheckCircle,
 	Leaf,
+	X,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { signInSchema } from "../../utils/validationSchemas";
@@ -34,10 +36,31 @@ const SignIn = () => {
 		mode: "onChange",
 	});
 
-	// Clear errors when component mounts
+	// Check for messages from state (e.g., from OTP verification)
+	const [stateMessage, setStateMessage] = useState("");
+	const [messageType, setMessageType] = useState("");
+
+	// Clear errors when component mounts and handle state messages
 	useEffect(() => {
 		clearError();
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+		// Check for message from location state
+		if (location.state?.message) {
+			setStateMessage(location.state.message);
+			setMessageType(location.state.type || "info");
+
+			// Clear the state to prevent showing the message on refresh
+			window.history.replaceState(null, "");
+
+			// Auto-clear message after 10 seconds
+			const timer = setTimeout(() => {
+				setStateMessage("");
+				setMessageType("");
+			}, 10000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [clearError, location.state]);
 
 	const onSubmit = async (data) => {
 		try {
@@ -82,6 +105,47 @@ const SignIn = () => {
 							Sign in to continue to your agricultural dashboard
 						</p>
 					</div>
+
+					{/* State Message (from OTP verification, etc.) */}
+					{stateMessage && (
+						<div
+							className={`mb-6 p-4 border rounded-xl flex items-center gap-3 ${
+								messageType === "success"
+									? "bg-green-50 border-green-200"
+									: messageType === "error"
+									? "bg-red-50 border-red-200"
+									: "bg-blue-50 border-blue-200"
+							}`}
+						>
+							{messageType === "success" ? (
+								<CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+							) : messageType === "error" ? (
+								<AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+							) : (
+								<AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0" />
+							)}
+							<span
+								className={`text-sm ${
+									messageType === "success"
+										? "text-green-700"
+										: messageType === "error"
+										? "text-red-700"
+										: "text-blue-700"
+								}`}
+							>
+								{stateMessage}
+							</span>
+							<button
+								onClick={() => {
+									setStateMessage("");
+									setMessageType("");
+								}}
+								className="ml-auto text-gray-400 hover:text-gray-600"
+							>
+								<X className="w-4 h-4" />
+							</button>
+						</div>
+					)}
 
 					{/* Error Message */}
 					{(error || errors.root) && (

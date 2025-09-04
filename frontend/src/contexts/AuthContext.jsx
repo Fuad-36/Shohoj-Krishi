@@ -144,23 +144,27 @@ export const AuthProvider = ({ children }) => {
 		}
 	}, []);
 
-	// Register function
+	// Register function - handles initial registration and OTP sending
 	const register = useCallback(async (userData) => {
 		try {
 			dispatch({ type: AUTH_ACTIONS.AUTH_START });
 
 			const response = await authAPI.register(userData);
-			const { token, user } = response.data;
 
-			// Store token in localStorage
-			localStorage.setItem("authToken", token);
-
+			// Registration successful - OTP sent to email
+			// Note: User is not authenticated yet, they need to verify OTP
 			dispatch({
-				type: AUTH_ACTIONS.AUTH_SUCCESS,
-				payload: { user },
+				type: AUTH_ACTIONS.AUTH_FAILURE, // Clear loading state but don't authenticate
+				payload: { error: null },
 			});
 
-			return { success: true, user };
+			return {
+				success: true,
+				userId: response.data.userId,
+				email: response.data.email,
+				message: response.data.message,
+				otpSent: response.data.otpSent,
+			};
 		} catch (error) {
 			const errorMessage =
 				error.response?.data?.message ||
@@ -169,6 +173,51 @@ export const AuthProvider = ({ children }) => {
 				type: AUTH_ACTIONS.AUTH_FAILURE,
 				payload: { error: errorMessage },
 			});
+			return { success: false, error: errorMessage };
+		}
+	}, []);
+
+	// Verify OTP function
+	const verifyOTP = useCallback(async (otpData) => {
+		try {
+			dispatch({ type: AUTH_ACTIONS.AUTH_START });
+
+			const response = await authAPI.verifyOTP(otpData);
+
+			// Email verified successfully
+			dispatch({
+				type: AUTH_ACTIONS.AUTH_FAILURE, // Clear loading but don't authenticate yet
+				payload: { error: null },
+			});
+
+			return {
+				success: true,
+				message: response.data.message,
+			};
+		} catch (error) {
+			const errorMessage =
+				error.response?.data?.message ||
+				"OTP verification failed. Please try again.";
+			dispatch({
+				type: AUTH_ACTIONS.AUTH_FAILURE,
+				payload: { error: errorMessage },
+			});
+			return { success: false, error: errorMessage };
+		}
+	}, []);
+
+	// Resend OTP function
+	const resendOTP = useCallback(async (email) => {
+		try {
+			const response = await authAPI.resendOTP(email);
+			return {
+				success: true,
+				message: response.data.message,
+			};
+		} catch (error) {
+			const errorMessage =
+				error.response?.data?.message ||
+				"Failed to resend OTP. Please try again.";
 			return { success: false, error: errorMessage };
 		}
 	}, []);
@@ -210,6 +259,8 @@ export const AuthProvider = ({ children }) => {
 		...state,
 		login,
 		register,
+		verifyOTP,
+		resendOTP,
 		logout,
 		clearError,
 		updateProfile,
