@@ -19,6 +19,7 @@ import ContactPage from "../pages/public/ContactPage";
 // Auth Pages
 import SignIn from "../pages/auth/SignIn";
 import SignUp from "../pages/auth/SignUp";
+import VerifyOTP from "../pages/auth/VerifyOTP";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 
 // Dashboard Pages
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
 			{
 				path: "signup",
 				element: <SignUp />,
+			},
+			{
+				path: "verify-otp",
+				element: <VerifyOTP />,
 			},
 			{
 				path: "forgot-password",
