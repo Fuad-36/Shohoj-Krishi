@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/buyer/crops/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/chatbot/debug/**").permitAll()
+                        .requestMatchers("/api/weather/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/farmer/**").hasRole("FARMER")
                         .requestMatchers("/api/buyer/**").hasRole("BUYER")
