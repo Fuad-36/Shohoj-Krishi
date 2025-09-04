@@ -1,0 +1,53 @@
+spring.application.name=backend
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/shohoj_krishi?charSet=UTF8
+spring.sql.init.encoding=UTF-8
+spring.datasource.username=postgres
+spring.datasource.password=1234
+
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.jdbc.time_zone=UTC+6
+
+# OTP Configuration
+app.otp.expiration=300
+app.otp.length=6
+
+# Password Configuration
+app.password.reset.expiration=3600
+
+# Auth Token Configuration
+app.auth.token.expiration=2592000
+
+# Admin Configuration
+admin.email=gazimaksudur2@gmail.com
+admin.password=123456
+
+
+# Email Configuration
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=gazimaksudur2@gmail.com
+spring.mail.password=khek aqih njxr xtzl
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+#JWT Configuration
+app.jwt.secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+app.jwt.expiration=3600000
+app.jwt.refresh.expiration=86400000 
+app.jwt.issuer=shohoj-krishi
+
+# Enable debug logging for Spring WebSocket
+logging.level.org.springframework.web.socket=DEBUG
+
+#Gemini API Configuration
+chatbot.gemini-api-key=${GEMINI_API_KEY}
+chatbot.gemini-model=gemini-2.5-flash
+chatbot.gemini-base-url=https://generativelanguage.googleapis.com/v1beta/models
+chatbot.temperature=0.7
+chatbot.max-tokens=4092
+chatbot.max-context-length=10000
+chatbot.safety-level=2
