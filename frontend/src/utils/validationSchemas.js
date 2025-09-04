@@ -20,10 +20,9 @@ const baseRegisterSchema = {
 		.required("Email is required"),
 	phone: yup
 		.string()
-		.matches(
-			/^(\+880|880|0)?[13-9]\d{8}$/,
-			"Please enter a valid Bangladeshi phone number"
-		)
+		.min(10, "Phone number must be at least 10 digits")
+		.max(15, "Phone number must not exceed 15 digits")
+		.matches(/^[+]?[\d\s\-()]+$/, "Please enter a valid phone number")
 		.required("Phone number is required"),
 	role: yup
 		.string()
@@ -99,7 +98,16 @@ export const getSignUpSchema = (role) => {
 
 // Default sign up schema (for backward compatibility)
 export const signUpSchema = yup.object({
-	...baseRegisterSchema,
+	email: yup
+		.string()
+		.email("Please enter a valid email address")
+		.required("Email is required"),
+	phone: yup
+		.string()
+		.min(10, "Phone number must be at least 10 digits")
+		.max(15, "Phone number must not exceed 15 digits")
+		.matches(/^[+]?[\d\s\-()]+$/, "Please enter a valid phone number")
+		.required("Phone number is required"),
 	...passwordSchema,
 	userType: yup
 		.string()
