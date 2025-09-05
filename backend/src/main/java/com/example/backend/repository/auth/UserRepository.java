@@ -1,5 +1,6 @@
 package com.example.backend.repository.auth;
 
+import com.example.backend.entity.auth.Role;
 import com.example.backend.entity.auth.RoleCode;
 import com.example.backend.entity.auth.User;
 import com.example.backend.entity.auth.UserStatus;
@@ -26,4 +27,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteOtpCodesForUser(@Param("userId") Long userId);
 
     Optional<User> findByEmailIgnoreCase(String email);
+
+    @Query("SELECT r.id FROM User u JOIN u.roles r WHERE u.id = :userId")
+    List<Long> getRoleIdsByUserId(@Param("userId") Long userId);
+
 }
