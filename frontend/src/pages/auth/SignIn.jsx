@@ -17,10 +17,12 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { signInSchema } from "../../utils/validationSchemas";
 import Button from "../../components/ui/Button";
+import { useTranslation } from "react-i18next";
 
 const SignIn = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const { login, isLoading, error, clearError } = useAuth();
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -99,11 +101,9 @@ const SignIn = () => {
 							<Leaf className="w-8 h-8 text-primary-600" />
 						</Link>
 						<h1 className="text-2xl font-bold text-gray-900 mb-2">
-							Welcome Back! 🌾
+							{t("auth.signIn.title")}
 						</h1>
-						<p className="text-gray-600">
-							Sign in to continue to your agricultural dashboard
-						</p>
+						<p className="text-gray-600">{t("auth.signIn.subtitle")}</p>
 					</div>
 
 					{/* State Message (from OTP verification, etc.) */}

@@ -10,12 +10,15 @@ import {
 	Leaf,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import Button from "../ui/Button";
+import LanguageToggle from "../ui/LanguageToggle";
 
 const Header = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const { user, isAuthenticated, logout } = useAuth();
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -31,10 +34,10 @@ const Header = () => {
 	};
 
 	const navigationLinks = [
-		{ name: "Home", href: "/" },
-		{ name: "About", href: "/about" },
-		{ name: "Features", href: "/features" },
-		{ name: "Contact", href: "/contact" },
+		{ name: t("navigation.home"), href: "/" },
+		{ name: t("navigation.about"), href: "/about" },
+		{ name: t("navigation.features"), href: "/features" },
+		{ name: t("navigation.contact"), href: "/contact" },
 	];
 
 	return (
@@ -72,8 +75,9 @@ const Header = () => {
 						))}
 					</nav>
 
-					{/* Auth Section */}
+					{/* Language Toggle & Auth Section */}
 					<div className="hidden md:flex items-center space-x-4">
+						<LanguageToggle />
 						{isAuthenticated ? (
 							<div className="relative">
 								<button
@@ -106,7 +110,7 @@ const Header = () => {
 											onClick={() => setIsUserMenuOpen(false)}
 										>
 											<User className="w-4 h-4 mr-2" />
-											Dashboard
+											{t("navigation.dashboard")}
 										</Link>
 										<Link
 											to="/settings"
@@ -114,7 +118,7 @@ const Header = () => {
 											onClick={() => setIsUserMenuOpen(false)}
 										>
 											<Settings className="w-4 h-4 mr-2" />
-											Settings
+											{t("navigation.settings")}
 										</Link>
 										<button
 											onClick={() => {
@@ -124,7 +128,7 @@ const Header = () => {
 											className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
 										>
 											<LogOut className="w-4 h-4 mr-2" />
-											Sign Out
+											{t("navigation.signOut")}
 										</button>
 									</div>
 								)}
@@ -133,12 +137,12 @@ const Header = () => {
 							<div className="flex items-center space-x-3">
 								<Link to="/auth/signin">
 									<Button variant="ghost" size="sm">
-										Sign In
+										{t("navigation.signIn")}
 									</Button>
 								</Link>
 								<Link to="/auth/signup">
 									<Button variant="primary" size="sm">
-										Join Now
+										{t("navigation.joinNow")}
 									</Button>
 								</Link>
 							</div>
@@ -179,6 +183,13 @@ const Header = () => {
 								</Link>
 							))}
 
+							{/* Mobile Language Toggle */}
+							<div className="pt-4 mt-4 border-t border-gray-200">
+								<div className="px-3 py-2">
+									<LanguageToggle />
+								</div>
+							</div>
+
 							{/* Mobile Auth */}
 							<div className="pt-4 mt-4 border-t border-gray-200">
 								{isAuthenticated ? (
@@ -196,14 +207,14 @@ const Header = () => {
 											className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
 											onClick={() => setIsMenuOpen(false)}
 										>
-											Dashboard
+											{t("navigation.dashboard")}
 										</Link>
 										<Link
 											to="/settings"
 											className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
 											onClick={() => setIsMenuOpen(false)}
 										>
-											Settings
+											{t("navigation.settings")}
 										</Link>
 										<button
 											onClick={() => {
@@ -212,7 +223,7 @@ const Header = () => {
 											}}
 											className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
 										>
-											Sign Out
+											{t("navigation.signOut")}
 										</button>
 									</div>
 								) : (
@@ -222,14 +233,14 @@ const Header = () => {
 											className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
 											onClick={() => setIsMenuOpen(false)}
 										>
-											Sign In
+											{t("navigation.signIn")}
 										</Link>
 										<Link
 											to="/auth/signup"
 											className="block px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg"
 											onClick={() => setIsMenuOpen(false)}
 										>
-											Join Now
+											{t("navigation.joinNow")}
 										</Link>
 									</div>
 								)}

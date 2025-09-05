@@ -15,6 +15,7 @@ import {
 import { authAPI } from "../../services/api";
 import { otpVerificationSchema } from "../../utils/validationSchemas";
 import Button from "../../components/ui/Button";
+import { useTranslation } from "react-i18next";
 
 const VerifyOTP = () => {
 	const [isVerifying, setIsVerifying] = useState(false);
@@ -27,6 +28,7 @@ const VerifyOTP = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const otpRefs = useRef([]);
+	const { t } = useTranslation();
 
 	// Get email from location state (passed from registration)
 	const email = location.state?.email || "";
