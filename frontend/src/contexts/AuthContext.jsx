@@ -10,6 +10,9 @@ import { authAPI } from "../services/api";
 // Initial state
 const initialState = {
 	user: null,
+	token: null,
+	refreshToken: null,
+	role: null,
 	isAuthenticated: false,
 	isLoading: true,
 	error: null,
@@ -37,6 +40,9 @@ const authReducer = (state, action) => {
 			return {
 				...state,
 				user: action.payload.user,
+				token: action.payload.token,
+				refreshToken: action.payload.refreshToken,
+				role: action.payload.role,
 				isAuthenticated: true,
 				isLoading: false,
 				error: null,
@@ -45,6 +51,9 @@ const authReducer = (state, action) => {
 			return {
 				...state,
 				user: null,
+				token: null,
+				refreshToken: null,
+				role: null,
 				isAuthenticated: false,
 				isLoading: false,
 				error: action.payload.error,
@@ -53,6 +62,9 @@ const authReducer = (state, action) => {
 			return {
 				...state,
 				user: null,
+				token: null,
+				refreshToken: null,
+				role: null,
 				isAuthenticated: false,
 				isLoading: false,
 				error: null,
@@ -122,17 +134,20 @@ export const AuthProvider = ({ children }) => {
 			dispatch({ type: AUTH_ACTIONS.AUTH_START });
 
 			const response = await authAPI.login(credentials);
-			const { token, user } = response.data;
+			const { token, refreshToken, role, user } = response.data;
 
-			// Store token in localStorage
+			// Store tokens in localStorage
 			localStorage.setItem("authToken", token);
+			if (refreshToken) {
+				localStorage.setItem("refreshToken", refreshToken);
+			}
 
 			dispatch({
 				type: AUTH_ACTIONS.AUTH_SUCCESS,
-				payload: { user },
+				payload: { user, token, refreshToken, role },
 			});
 
-			return { success: true, user };
+			return { success: true, user, role };
 		} catch (error) {
 			const errorMessage =
 				error.response?.data?.message || "Login failed. Please try again.";

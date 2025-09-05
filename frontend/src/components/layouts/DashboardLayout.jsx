@@ -29,7 +29,7 @@ import {
 	Leaf,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getUserDashboardTabs, USER_ROLES } from "../../constants/roles";
+import { useTranslation } from "react-i18next";
 import Button from "../ui/Button";
 
 // Icon mapping for dynamic rendering
@@ -51,12 +51,15 @@ const iconMap = {
 	UserCog,
 	Shield,
 	Server,
+	HelpCircle,
+	Settings,
 };
 
 const DashboardLayout = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
-	const { user, logout } = useAuth();
+	const { user, role, logout } = useAuth();
+	const { t } = useTranslation();
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -65,7 +68,134 @@ const DashboardLayout = () => {
 		navigate("/");
 	};
 
-	const dashboardTabs = getUserDashboardTabs(user?.userType);
+	// Dynamic dashboard tabs based on role
+	const getDashboardTabs = (userRole) => {
+		const baseTab = {
+			id: "overview",
+			label: t("dashboard.overview"),
+			path: "/dashboard",
+			icon: "BarChart3",
+		};
+
+		switch (userRole) {
+			case "FARMER":
+				return [
+					baseTab,
+					{
+						id: "crops",
+						label: t("dashboard.roles.farmer.tabs.crops"),
+						path: "/dashboard/crops",
+						icon: "Sprout",
+					},
+					{
+						id: "marketplace",
+						label: t("dashboard.roles.farmer.tabs.marketplace"),
+						path: "/dashboard/marketplace",
+						icon: "ShoppingCart",
+					},
+					{
+						id: "weather",
+						label: t("dashboard.roles.farmer.tabs.weather"),
+						path: "/dashboard/weather",
+						icon: "Cloud",
+					},
+					{
+						id: "education",
+						label: t("dashboard.roles.farmer.tabs.education"),
+						path: "/dashboard/education",
+						icon: "BookOpen",
+					},
+				];
+			case "BUYER":
+				return [
+					baseTab,
+					{
+						id: "browse",
+						label: t("dashboard.roles.buyer.tabs.browse"),
+						path: "/dashboard/browse",
+						icon: "Store",
+					},
+					{
+						id: "orders",
+						label: t("dashboard.roles.buyer.tabs.orders"),
+						path: "/dashboard/orders",
+						icon: "ClipboardList",
+					},
+					{
+						id: "suppliers",
+						label: t("dashboard.roles.buyer.tabs.suppliers"),
+						path: "/dashboard/suppliers",
+						icon: "Users",
+					},
+					{
+						id: "analytics",
+						label: t("dashboard.roles.buyer.tabs.analytics"),
+						path: "/dashboard/analytics",
+						icon: "TrendingUp",
+					},
+				];
+			case "AUTHORITY":
+				return [
+					baseTab,
+					{
+						id: "farmers",
+						label: t("dashboard.roles.authority.tabs.farmers"),
+						path: "/dashboard/farmers",
+						icon: "Users",
+					},
+					{
+						id: "programs",
+						label: t("dashboard.roles.authority.tabs.programs"),
+						path: "/dashboard/programs",
+						icon: "FileText",
+					},
+					{
+						id: "reports",
+						label: t("dashboard.roles.authority.tabs.reports"),
+						path: "/dashboard/reports",
+						icon: "PieChart",
+					},
+					{
+						id: "support",
+						label: t("dashboard.roles.authority.tabs.support"),
+						path: "/dashboard/support",
+						icon: "HelpCircle",
+					},
+				];
+			case "ADMIN":
+				return [
+					baseTab,
+					{
+						id: "users",
+						label: t("dashboard.roles.admin.tabs.users"),
+						path: "/dashboard/users",
+						icon: "UserCog",
+					},
+					{
+						id: "platform",
+						label: t("dashboard.roles.admin.tabs.platform"),
+						path: "/dashboard/platform",
+						icon: "Server",
+					},
+					{
+						id: "analytics",
+						label: t("dashboard.roles.admin.tabs.analytics"),
+						path: "/dashboard/analytics",
+						icon: "TrendingUp",
+					},
+					{
+						id: "settings",
+						label: t("dashboard.roles.admin.tabs.settings"),
+						path: "/dashboard/settings",
+						icon: "Settings",
+					},
+				];
+			default:
+				return [baseTab];
+		}
+	};
+
+	const dashboardTabs = getDashboardTabs(role || user?.userType);
 
 	const isActiveTab = (path) => {
 		if (path === "/dashboard") {
@@ -76,10 +206,13 @@ const DashboardLayout = () => {
 
 	// Role-specific greeting and stats
 	const getRoleSpecificContent = () => {
-		switch (user?.userType) {
-			case USER_ROLES.FARMER:
+		const currentRole = role || user?.userType;
+		switch (currentRole) {
+			case "FARMER":
 				return {
-					greeting: "Welcome back to your farm dashboard! 🌾",
+					greeting: `${t("dashboard.welcome")}, ${t(
+						"dashboard.roles.farmer.title"
+					)} 🌾`,
 					stats: [
 						{ label: "Active Crops", value: "12", color: "text-primary-600" },
 						{
@@ -90,9 +223,11 @@ const DashboardLayout = () => {
 						{ label: "Weather Alerts", value: "3", color: "text-accent-600" },
 					],
 				};
-			case USER_ROLES.BUYER:
+			case "BUYER":
 				return {
-					greeting: "Welcome to your buying dashboard! 🛒",
+					greeting: `${t("dashboard.welcome")}, ${t(
+						"dashboard.roles.buyer.title"
+					)} 🛒`,
 					stats: [
 						{ label: "Active Orders", value: "8", color: "text-secondary-600" },
 						{
@@ -107,9 +242,11 @@ const DashboardLayout = () => {
 						},
 					],
 				};
-			case USER_ROLES.GOVERNMENT:
+			case "AUTHORITY":
 				return {
-					greeting: "Government Dashboard - Krishi Odhidoptor 🏛️",
+					greeting: `${t("dashboard.welcome")}, ${t(
+						"dashboard.roles.authority.title"
+					)} 🏛️`,
 					stats: [
 						{ label: "Farmer Queries", value: "156", color: "text-accent-600" },
 						{
@@ -124,9 +261,11 @@ const DashboardLayout = () => {
 						},
 					],
 				};
-			case USER_ROLES.ADMIN:
+			case "ADMIN":
 				return {
-					greeting: "Platform Administration Dashboard 🛡️",
+					greeting: `${t("dashboard.welcome")}, ${t(
+						"dashboard.roles.admin.title"
+					)} 🛡️`,
 					stats: [
 						{ label: "Total Users", value: "2,456", color: "text-primary-600" },
 						{ label: "System Health", value: "99.8%", color: "text-green-600" },

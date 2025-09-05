@@ -13,24 +13,26 @@ import {
 	Bell,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { USER_ROLES } from "../../constants/roles";
+import { useTranslation } from "react-i18next";
 
 const DashboardOverview = () => {
-	const { user } = useAuth();
+	const { user, role } = useAuth();
+	const { t } = useTranslation();
 
 	// Role-specific dashboard content
 	const getRoleDashboardContent = () => {
-		switch (user?.userType) {
-			case USER_ROLES.FARMER:
-				return <FarmerDashboard />;
-			case USER_ROLES.BUYER:
-				return <BuyerDashboard />;
-			case USER_ROLES.GOVERNMENT:
-				return <GovernmentDashboard />;
-			case USER_ROLES.ADMIN:
-				return <AdminDashboard />;
+		const currentRole = role || user?.userType;
+		switch (currentRole) {
+			case "FARMER":
+				return <FarmerDashboard t={t} />;
+			case "BUYER":
+				return <BuyerDashboard t={t} />;
+			case "AUTHORITY":
+				return <GovernmentDashboard t={t} />;
+			case "ADMIN":
+				return <AdminDashboard t={t} />;
 			default:
-				return <DefaultDashboard />;
+				return <DefaultDashboard t={t} />;
 		}
 	};
 

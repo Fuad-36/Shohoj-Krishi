@@ -161,6 +161,172 @@
             "contactUs": "Contact Us"
         }
     },
+    "landing": {
+        "badge": "Revolutionizing Agriculture in Bangladesh",
+        "heroTitle": "Direct Farm to",
+        "heroTitleSpan": "Market Connection",
+        "heroSubtitle": "Empowering farmers with AI-driven tools, connecting them directly with buyers, and eliminating intermediaries for fair pricing and sustainable agriculture.",
+        "getStartedToday": "Get Started Today",
+        "watchDemo": "Watch Demo",
+        "stats": {
+            "farmersConnected": "Farmers Connected",
+            "revenueIncreased": "Revenue Increased",
+            "secureTransactions": "Secure Transactions"
+        },
+        "floatingCards": {
+            "freshHarvest": "🌾 Fresh Harvest",
+            "readyForDelivery": "Ready for delivery",
+            "aiAssistant": "🤖 AI Assistant",
+            "alwaysAvailable": "Always available"
+        },
+        "communities": {
+            "title": "Connecting Communities",
+            "subtitle": "Farmers • Buyers • Government Authorities"
+        }
+    },
+    "features": {
+        "sectionTitle": "Powerful",
+        "sectionTitleSpan": "AI-Driven Features",
+        "sectionSubtitle": "Our platform combines cutting-edge artificial intelligence with practical farming needs to create tools that truly make a difference in agricultural productivity.",
+        "list": {
+            "chatbot": {
+                "title": "Bengali-Speaking Chatbot",
+                "description": "Get personalized farming advice and connect with government agricultural experts through our AI-powered chatbot."
+            },
+            "pestDetection": {
+                "title": "Pest & Disease Detection",
+                "description": "Upload photos of crops to instantly identify pests and diseases using advanced computer vision technology."
+            },
+            "voiceInput": {
+                "title": "Voice Input/Output",
+                "description": "Interact with the platform using voice commands in Bengali, perfect for users with limited literacy."
+            },
+            "weatherAlerts": {
+                "title": "Weather Alerts",
+                "description": "Receive real-time, location-specific weather alerts to plan your farming activities effectively."
+            },
+            "education": {
+                "title": "Educational Content",
+                "description": "Access Bengali micro-courses, tutorials, and translated agricultural news to improve your farming knowledge."
+            },
+            "marketplace": {
+                "title": "Direct Marketplace",
+                "description": "Connect directly with buyers, post crop availability, and negotiate fair prices without intermediaries."
+            }
+        },
+        "benefits": {
+            "title": "Why Choose Shohoj-Krishi?",
+            "subtitle": "Real results from real farmers across Bangladesh",
+            "revenue": {
+                "title": "Increase Revenue",
+                "description": "Farmers see up to 40% increase in income by selling directly to buyers.",
+                "stats": "40% Average Increase"
+            },
+            "community": {
+                "title": "Community Support",
+                "description": "Join a growing community of farmers and get peer-to-peer support.",
+                "stats": "10,000+ Farmers"
+            },
+            "security": {
+                "title": "Secure Platform",
+                "description": "Your data and transactions are protected with enterprise-grade security.",
+                "stats": "100% Secure"
+            }
+        }
+    },
+    "footer": {
+        "description": "Empowering farmers across Bangladesh with AI-driven tools and direct market access. Building a sustainable future for agriculture.",
+        "sections": {
+            "platform": {
+                "title": "Platform",
+                "farmers": "For Farmers",
+                "buyers": "For Buyers",
+                "aiTools": "AI Tools",
+                "government": "Government Portal"
+            },
+            "resources": {
+                "title": "Resources",
+                "helpCenter": "Help Center",
+                "tutorials": "Tutorials",
+                "apiDocs": "API Documentation",
+                "forum": "Community Forum"
+            },
+            "company": {
+                "title": "Company",
+                "about": "About Us",
+                "mission": "Our Mission",
+                "careers": "Careers",
+                "press": "Press Kit"
+            },
+            "legal": {
+                "title": "Legal",
+                "privacy": "Privacy Policy",
+                "terms": "Terms of Service",
+                "cookies": "Cookie Policy",
+                "compliance": "Compliance"
+            }
+        },
+        "newsletter": {
+            "title": "Stay Updated",
+            "subtitle": "Get the latest updates on new features, farming tips, and market insights.",
+            "placeholder": "Enter your email",
+            "subscribe": "Subscribe"
+        },
+        "contact": {
+            "email": "support@shohoj-krishi.com",
+            "phone": "+880 1XXX-XXXXXX",
+            "address": "Dhaka, Bangladesh"
+        },
+        "copyright": "© 2024 Shohoj-Krishi. All rights reserved.",
+        "recognition": "Recognized by the Government of Bangladesh | Ministry of Agriculture",
+        "tagline": "Smart Agriculture"
+    },
+    "dashboard": {
+        "welcome": "Welcome back",
+        "overview": "Overview",
+        "roles": {
+            "farmer": {
+                "title": "Farmer Dashboard",
+                "tabs": {
+                    "overview": "Overview",
+                    "crops": "My Crops",
+                    "marketplace": "Marketplace",
+                    "weather": "Weather",
+                    "education": "Learning"
+                }
+            },
+            "buyer": {
+                "title": "Buyer Dashboard",
+                "tabs": {
+                    "overview": "Overview",
+                    "browse": "Browse Products",
+                    "orders": "My Orders",
+                    "suppliers": "Suppliers",
+                    "analytics": "Analytics"
+                }
+            },
+            "authority": {
+                "title": "Authority Dashboard",
+                "tabs": {
+                    "overview": "Overview",
+                    "farmers": "Farmers",
+                    "programs": "Programs",
+                    "reports": "Reports",
+                    "support": "Support"
+                }
+            },
+            "admin": {
+                "title": "Admin Dashboard",
+                "tabs": {
+                    "overview": "Overview",
+                    "users": "Users",
+                    "platform": "Platform",
+                    "analytics": "Analytics",
+                    "settings": "Settings"
+                }
+            }
+        }
+    },
     "common": {
         "required": "*",
         "loading": "Loading...",
@@ -194,17 +360,6 @@
         "showLess": "Show Less",
         "readMore": "Read More",
         "readLess": "Read Less"
-    },
-    "footer": {
-        "description": "Empowering farmers and connecting agricultural communities across Bangladesh.",
-        "quickLinks": "Quick Links",
-        "support": "Support",
-        "legal": "Legal",
-        "privacyPolicy": "Privacy Policy",
-        "termsOfService": "Terms of Service",
-        "helpCenter": "Help Center",
-        "contactSupport": "Contact Support",
-        "allRightsReserved": "All rights reserved."
     },
     "errors": {
         "required": "This field is required",
