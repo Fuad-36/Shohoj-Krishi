@@ -22,10 +22,17 @@ import {
 	FileText,
 	Hash,
 	Image,
+	ChevronDown,
 } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { getSignUpSchema } from "../../utils/validationSchemas";
 import Button from "../../components/ui/Button";
+import {
+	getDivisions,
+	getDistrictsByDivision,
+	getUpazilasByDistrict,
+} from "../../data/bdgeolocationdata";
+import { useTranslation } from "react-i18next";
 
 const SignUp = () => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +40,19 @@ const SignUp = () => {
 	const [selectedRole, setSelectedRole] = useState("");
 	const [isRegistering, setIsRegistering] = useState(false);
 	const [error, setError] = useState("");
+
+	// Location state management
+	const [selectedDivision, setSelectedDivision] = useState("");
+	const [selectedDistrict, setSelectedDistrict] = useState("");
+	const [selectedUpazila, setSelectedUpazila] = useState("");
+
+	// Office location state management for AUTHORITY
+	const [selectedOfficeDivision, setSelectedOfficeDivision] = useState("");
+	const [selectedOfficeDistrict, setSelectedOfficeDistrict] = useState("");
+	const [selectedOfficeUpazila, setSelectedOfficeUpazila] = useState("");
+
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	const {
 		register,
@@ -42,12 +61,80 @@ const SignUp = () => {
 		setError: setFormError,
 		watch,
 		reset,
+		setValue,
 	} = useForm({
 		resolver: yupResolver(getSignUpSchema(selectedRole)),
 		mode: "onChange",
 	});
 
 	const watchRole = watch("role");
+
+	// Prepare location data
+	const divisions = getDivisions();
+	const districts = selectedDivision
+		? getDistrictsByDivision(selectedDivision)
+		: [];
+	const upazilas = selectedDistrict
+		? getUpazilasByDistrict(selectedDistrict)
+		: [];
+
+	// Office location data for AUTHORITY
+	const officeDistricts = selectedOfficeDivision
+		? getDistrictsByDivision(selectedOfficeDivision)
+		: [];
+	const officeUpazilas = selectedOfficeDistrict
+		? getUpazilasByDistrict(selectedOfficeDistrict)
+		: [];
+
+	// Handle location changes
+	const handleDivisionChange = (e) => {
+		const division = e.target.value;
+		setSelectedDivision(division);
+		setSelectedDistrict("");
+		setSelectedUpazila("");
+		setValue("division", division);
+		setValue("district", "");
+		setValue("upazila", "");
+	};
+
+	const handleDistrictChange = (e) => {
+		const district = e.target.value;
+		setSelectedDistrict(district);
+		setSelectedUpazila("");
+		setValue("district", district);
+		setValue("upazila", "");
+	};
+
+	const handleUpazilaChange = (e) => {
+		const upazila = e.target.value;
+		setSelectedUpazila(upazila);
+		setValue("upazila", upazila);
+	};
+
+	// Handle office location changes for AUTHORITY
+	const handleOfficeDivisionChange = (e) => {
+		const division = e.target.value;
+		setSelectedOfficeDivision(division);
+		setSelectedOfficeDistrict("");
+		setSelectedOfficeUpazila("");
+		setValue("officeDivision", division);
+		setValue("officeDistrict", "");
+		setValue("officeUpazila", "");
+	};
+
+	const handleOfficeDistrictChange = (e) => {
+		const district = e.target.value;
+		setSelectedOfficeDistrict(district);
+		setSelectedOfficeUpazila("");
+		setValue("officeDistrict", district);
+		setValue("officeUpazila", "");
+	};
+
+	const handleOfficeUpazilaChange = (e) => {
+		const upazila = e.target.value;
+		setSelectedOfficeUpazila(upazila);
+		setValue("officeUpazila", upazila);
+	};
 
 	// Update selected role and reset form when role changes
 	useEffect(() => {
@@ -152,23 +239,23 @@ const SignUp = () => {
 	const userTypes = [
 		{
 			value: "FARMER",
-			label: "Farmer",
+			label: t("auth.signUp.farmer"),
 			icon: Tractor,
-			description: "Grow and sell crops directly",
+			description: t("auth.signUp.farmerDesc"),
 			color: "green",
 		},
 		{
 			value: "BUYER",
-			label: "Buyer",
+			label: t("auth.signUp.buyer"),
 			icon: ShoppingCart,
-			description: "Purchase fresh produce",
+			description: t("auth.signUp.buyerDesc"),
 			color: "blue",
 		},
 		{
 			value: "AUTHORITY",
-			label: "Government Official",
+			label: t("auth.signUp.authority"),
 			icon: Shield,
-			description: "Provide support and oversight",
+			description: t("auth.signUp.authorityDesc"),
 			color: "purple",
 		},
 	];
@@ -194,12 +281,9 @@ const SignUp = () => {
 							<Leaf className="w-8 h-8 text-primary-600" />
 						</div>
 						<h1 className="text-2xl font-bold text-gray-900 mb-2">
-							Join Our Agricultural Community! 🌾
+							{t("auth.signUp.title")}
 						</h1>
-						<p className="text-gray-600">
-							Create your account to access advanced farming tools and direct
-							market access
-						</p>
+						<p className="text-gray-600">{t("auth.signUp.subtitle")}</p>
 					</div>
 
 					{/* Error Message */}
@@ -215,7 +299,8 @@ const SignUp = () => {
 						{/* Role Selection */}
 						<div>
 							<label className="block text-sm font-medium text-gray-700 mb-3">
-								I am a... <span className="text-red-500">*</span>
+								{t("auth.signUp.roleSelection")}{" "}
+								<span className="text-red-500">*</span>
 							</label>
 							<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 								{userTypes.map((type) => {
@@ -290,7 +375,8 @@ const SignUp = () => {
 											htmlFor="fullName"
 											className="block text-sm font-medium text-gray-700 mb-2"
 										>
-											Full Name <span className="text-red-500">*</span>
+											{t("auth.signUp.fullName")}{" "}
+											<span className="text-red-500">*</span>
 										</label>
 										<div className="relative">
 											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -305,7 +391,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="Enter your full name"
+												placeholder={t("auth.signUp.placeholders.fullName")}
 											/>
 										</div>
 										{errors.fullName && (
@@ -321,7 +407,8 @@ const SignUp = () => {
 											htmlFor="email"
 											className="block text-sm font-medium text-gray-700 mb-2"
 										>
-											Email Address <span className="text-red-500">*</span>
+											{t("auth.signUp.email")}{" "}
+											<span className="text-red-500">*</span>
 										</label>
 										<div className="relative">
 											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -336,7 +423,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="Enter your email"
+												placeholder={t("auth.signUp.placeholders.email")}
 											/>
 										</div>
 										{errors.email && (
@@ -355,7 +442,8 @@ const SignUp = () => {
 											htmlFor="phone"
 											className="block text-sm font-medium text-gray-700 mb-2"
 										>
-											Phone Number <span className="text-red-500">*</span>
+											{t("auth.signUp.phone")}{" "}
+											<span className="text-red-500">*</span>
 										</label>
 										<div className="relative">
 											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -370,7 +458,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="e.g., 01700000000"
+												placeholder={t("auth.signUp.placeholders.phone")}
 											/>
 										</div>
 										{errors.phone && (
@@ -386,7 +474,7 @@ const SignUp = () => {
 											htmlFor="nidNumber"
 											className="block text-sm font-medium text-gray-700 mb-2"
 										>
-											NID Number
+											{t("auth.signUp.nidNumber")}
 										</label>
 										<div className="relative">
 											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -401,7 +489,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="Enter your NID number"
+												placeholder={t("auth.signUp.placeholders.nidNumber")}
 											/>
 										</div>
 										{errors.nidNumber && (
@@ -415,7 +503,7 @@ const SignUp = () => {
 								{/* Location Information */}
 								<div>
 									<h3 className="text-lg font-medium text-gray-900 mb-4">
-										Location Information
+										{t("auth.signUp.locationInfo")}
 									</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 										{/* Division */}
@@ -424,23 +512,35 @@ const SignUp = () => {
 												htmlFor="division"
 												className="block text-sm font-medium text-gray-700 mb-2"
 											>
-												Division
+												{t("auth.signUp.division")}
 											</label>
 											<div className="relative">
 												<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 													<MapPin className="w-5 h-5 text-gray-400" />
 												</div>
-												<input
+												<select
 													{...register("division")}
-													type="text"
 													id="division"
-													className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+													value={selectedDivision}
+													onChange={handleDivisionChange}
+													className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 														errors.division
 															? "border-red-300 bg-red-50"
 															: "border-gray-300"
 													}`}
-													placeholder="e.g., Dhaka"
-												/>
+												>
+													<option value="">
+														{t("auth.signUp.selectDivision")}
+													</option>
+													{divisions.map((division) => (
+														<option key={division.value} value={division.value}>
+															{division.label}
+														</option>
+													))}
+												</select>
+												<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+													<ChevronDown className="w-5 h-5 text-gray-400" />
+												</div>
 											</div>
 											{errors.division && (
 												<p className="mt-1 text-sm text-red-600">
@@ -455,23 +555,42 @@ const SignUp = () => {
 												htmlFor="district"
 												className="block text-sm font-medium text-gray-700 mb-2"
 											>
-												District
+												{t("auth.signUp.district")}
 											</label>
 											<div className="relative">
 												<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 													<MapPin className="w-5 h-5 text-gray-400" />
 												</div>
-												<input
+												<select
 													{...register("district")}
-													type="text"
 													id="district"
-													className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+													value={selectedDistrict}
+													onChange={handleDistrictChange}
+													disabled={!selectedDivision}
+													className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 														errors.district
 															? "border-red-300 bg-red-50"
 															: "border-gray-300"
+													} ${
+														!selectedDivision
+															? "opacity-50 cursor-not-allowed"
+															: ""
 													}`}
-													placeholder="e.g., Dhaka"
-												/>
+												>
+													<option value="">
+														{selectedDivision
+															? t("auth.signUp.selectDistrict")
+															: t("auth.signUp.selectDivisionFirst")}
+													</option>
+													{districts.map((district) => (
+														<option key={district.value} value={district.value}>
+															{district.label}
+														</option>
+													))}
+												</select>
+												<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+													<ChevronDown className="w-5 h-5 text-gray-400" />
+												</div>
 											</div>
 											{errors.district && (
 												<p className="mt-1 text-sm text-red-600">
@@ -486,23 +605,42 @@ const SignUp = () => {
 												htmlFor="upazila"
 												className="block text-sm font-medium text-gray-700 mb-2"
 											>
-												Upazila
+												{t("auth.signUp.upazila")}
 											</label>
 											<div className="relative">
 												<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 													<MapPin className="w-5 h-5 text-gray-400" />
 												</div>
-												<input
+												<select
 													{...register("upazila")}
-													type="text"
 													id="upazila"
-													className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+													value={selectedUpazila}
+													onChange={handleUpazilaChange}
+													disabled={!selectedDistrict}
+													className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 														errors.upazila
 															? "border-red-300 bg-red-50"
 															: "border-gray-300"
+													} ${
+														!selectedDistrict
+															? "opacity-50 cursor-not-allowed"
+															: ""
 													}`}
-													placeholder="e.g., Savar"
-												/>
+												>
+													<option value="">
+														{selectedDistrict
+															? "Select Upazila"
+															: "Select District first"}
+													</option>
+													{upazilas.map((upazila) => (
+														<option key={upazila.value} value={upazila.value}>
+															{upazila.label}
+														</option>
+													))}
+												</select>
+												<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+													<ChevronDown className="w-5 h-5 text-gray-400" />
+												</div>
 											</div>
 											{errors.upazila && (
 												<p className="mt-1 text-sm text-red-600">
@@ -549,7 +687,7 @@ const SignUp = () => {
 											htmlFor="address"
 											className="block text-sm font-medium text-gray-700 mb-2"
 										>
-											Address
+											{t("auth.signUp.address")}
 										</label>
 										<div className="relative">
 											<div className="absolute top-3 left-3 flex items-center pointer-events-none">
@@ -564,7 +702,7 @@ const SignUp = () => {
 														? "border-red-300 bg-red-50"
 														: "border-gray-300"
 												}`}
-												placeholder="Enter your full address"
+												placeholder="Enter house number, road name, area or other details"
 											/>
 										</div>
 										{errors.address && (
@@ -579,7 +717,7 @@ const SignUp = () => {
 								{selectedRole === "FARMER" && (
 									<div>
 										<h3 className="text-lg font-medium text-gray-900 mb-4">
-											Farm Information
+											{t("auth.signUp.farmInfo")}
 										</h3>
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 											{/* Farm Size */}
@@ -651,7 +789,7 @@ const SignUp = () => {
 								{selectedRole === "BUYER" && (
 									<div>
 										<h3 className="text-lg font-medium text-gray-900 mb-4">
-											Organization Information
+											{t("auth.signUp.orgInfo")}
 										</h3>
 										<div>
 											<label
@@ -688,7 +826,7 @@ const SignUp = () => {
 								{selectedRole === "AUTHORITY" && (
 									<div>
 										<h3 className="text-lg font-medium text-gray-900 mb-4">
-											Official Information
+											{t("auth.signUp.officialInfo")}
 										</h3>
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 											{/* Designation */}
@@ -803,17 +941,30 @@ const SignUp = () => {
 														<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 															<Building className="w-5 h-5 text-gray-400" />
 														</div>
-														<input
+														<select
 															{...register("officeDivision")}
-															type="text"
 															id="officeDivision"
-															className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+															value={selectedOfficeDivision}
+															onChange={handleOfficeDivisionChange}
+															className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 																errors.officeDivision
 																	? "border-red-300 bg-red-50"
 																	: "border-gray-300"
 															}`}
-															placeholder="e.g., Rajshahi"
-														/>
+														>
+															<option value="">Select Office Division</option>
+															{divisions.map((division) => (
+																<option
+																	key={division.value}
+																	value={division.value}
+																>
+																	{division.label}
+																</option>
+															))}
+														</select>
+														<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+															<ChevronDown className="w-5 h-5 text-gray-400" />
+														</div>
 													</div>
 													{errors.officeDivision && (
 														<p className="mt-1 text-sm text-red-600">
@@ -834,17 +985,39 @@ const SignUp = () => {
 														<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 															<Building className="w-5 h-5 text-gray-400" />
 														</div>
-														<input
+														<select
 															{...register("officeDistrict")}
-															type="text"
 															id="officeDistrict"
-															className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+															value={selectedOfficeDistrict}
+															onChange={handleOfficeDistrictChange}
+															disabled={!selectedOfficeDivision}
+															className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 																errors.officeDistrict
 																	? "border-red-300 bg-red-50"
 																	: "border-gray-300"
+															} ${
+																!selectedOfficeDivision
+																	? "opacity-50 cursor-not-allowed"
+																	: ""
 															}`}
-															placeholder="e.g., Rajshahi"
-														/>
+														>
+															<option value="">
+																{selectedOfficeDivision
+																	? "Select Office District"
+																	: "Select Office Division first"}
+															</option>
+															{officeDistricts.map((district) => (
+																<option
+																	key={district.value}
+																	value={district.value}
+																>
+																	{district.label}
+																</option>
+															))}
+														</select>
+														<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+															<ChevronDown className="w-5 h-5 text-gray-400" />
+														</div>
 													</div>
 													{errors.officeDistrict && (
 														<p className="mt-1 text-sm text-red-600">
@@ -865,17 +1038,39 @@ const SignUp = () => {
 														<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 															<Building className="w-5 h-5 text-gray-400" />
 														</div>
-														<input
+														<select
 															{...register("officeUpazila")}
-															type="text"
 															id="officeUpazila"
-															className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+															value={selectedOfficeUpazila}
+															onChange={handleOfficeUpazilaChange}
+															disabled={!selectedOfficeDistrict}
+															className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white ${
 																errors.officeUpazila
 																	? "border-red-300 bg-red-50"
 																	: "border-gray-300"
+															} ${
+																!selectedOfficeDistrict
+																	? "opacity-50 cursor-not-allowed"
+																	: ""
 															}`}
-															placeholder="e.g., Paba"
-														/>
+														>
+															<option value="">
+																{selectedOfficeDistrict
+																	? "Select Office Upazila"
+																	: "Select Office District first"}
+															</option>
+															{officeUpazilas.map((upazila) => (
+																<option
+																	key={upazila.value}
+																	value={upazila.value}
+																>
+																	{upazila.label}
+																</option>
+															))}
+														</select>
+														<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+															<ChevronDown className="w-5 h-5 text-gray-400" />
+														</div>
 													</div>
 													{errors.officeUpazila && (
 														<p className="mt-1 text-sm text-red-600">
@@ -923,7 +1118,7 @@ const SignUp = () => {
 								{(selectedRole === "FARMER" || selectedRole === "BUYER") && (
 									<div>
 										<h3 className="text-lg font-medium text-gray-900 mb-4">
-											Security Information
+											{t("auth.signUp.security")}
 										</h3>
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 											{/* Password Field */}
@@ -1027,12 +1222,12 @@ const SignUp = () => {
 									{isSubmitting || isRegistering ? (
 										<>
 											<Loader2 className="w-5 h-5 mr-2 animate-spin" />
-											Creating Account...
+											{t("auth.signUp.creatingAccount")}
 										</>
 									) : (
 										<>
 											<UserPlus className="w-5 h-5 mr-2" />
-											Create Account
+											{t("auth.signUp.createAccount")}
 										</>
 									)}
 								</Button>
@@ -1042,12 +1237,12 @@ const SignUp = () => {
 						{/* Sign In Link */}
 						<div className="mt-8 text-center">
 							<p className="text-gray-600">
-								Already have an account?{" "}
+								{t("auth.signUp.alreadyAccount")}{" "}
 								<Link
 									to="/auth/signin"
 									className="font-medium text-primary-600 hover:text-primary-700 transition-colors"
 								>
-									Sign in here
+									{t("auth.signUp.signInHere")}
 								</Link>
 							</p>
 						</div>
