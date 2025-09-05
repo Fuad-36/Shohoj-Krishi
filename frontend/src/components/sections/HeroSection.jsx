@@ -1,23 +1,26 @@
 import { ArrowRight, Play, Users, TrendingUp, Shield } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Button from "../ui/Button";
 
 const HeroSection = () => {
+	const { t } = useTranslation();
+
 	const stats = [
 		{
 			icon: Users,
-			label: "Farmers Connected",
+			label: t("landing.stats.farmersConnected"),
 			value: "10,000+",
 			color: "text-primary-600",
 		},
 		{
 			icon: TrendingUp,
-			label: "Revenue Increased",
+			label: t("landing.stats.revenueIncreased"),
 			value: "40%+",
 			color: "text-secondary-600",
 		},
 		{
 			icon: Shield,
-			label: "Secure Transactions",
+			label: t("landing.stats.secureTransactions"),
 			value: "100%",
 			color: "text-accent-600",
 		},
@@ -39,29 +42,29 @@ const HeroSection = () => {
 					<div className="text-center lg:text-left">
 						<div className="inline-flex items-center px-4 py-2 bg-primary-100 rounded-full text-primary-700 text-sm font-medium mb-6">
 							<span className="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
-							Revolutionizing Agriculture in Bangladesh
+							{t("landing.badge")}
 						</div>
 
 						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
-							Direct Farm to
-							<span className="text-gradient block">Market Connection</span>
+							{t("landing.heroTitle")}
+							<span className="text-gradient block">
+								{t("landing.heroTitleSpan")}
+							</span>
 						</h1>
 
 						<p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl">
-							Empowering farmers with AI-driven tools, connecting them directly
-							with buyers, and eliminating intermediaries for fair pricing and
-							sustainable agriculture.
+							{t("landing.heroSubtitle")}
 						</p>
 
 						{/* CTA Buttons */}
 						<div className="flex flex-col sm:flex-row gap-4 mb-12">
 							<Button variant="primary" size="lg" className="group">
-								Get Started Today
+								{t("landing.getStartedToday")}
 								<ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
 							</Button>
 							<Button variant="outline" size="lg" className="group">
 								<Play className="mr-2 w-5 h-5" />
-								Watch Demo
+								{t("landing.watchDemo")}
 							</Button>
 						</div>
 
@@ -91,10 +94,10 @@ const HeroSection = () => {
 										<Users className="w-12 h-12" />
 									</div>
 									<h3 className="text-2xl font-bold mb-4">
-										Connecting Communities
+										{t("landing.communities.title")}
 									</h3>
 									<p className="text-primary-100">
-										Farmers • Buyers • Government Authorities
+										{t("landing.communities.subtitle")}
 									</p>
 								</div>
 							</div>
@@ -102,9 +105,11 @@ const HeroSection = () => {
 							{/* Floating Cards */}
 							<div className="absolute -top-4 -right-4 bg-white rounded-xl p-4 shadow-lg animate-bounce-gentle">
 								<div className="text-sm font-medium text-gray-900">
-									🌾 Fresh Harvest
+									{t("landing.floatingCards.freshHarvest")}
 								</div>
-								<div className="text-xs text-gray-500">Ready for delivery</div>
+								<div className="text-xs text-gray-500">
+									{t("landing.floatingCards.readyForDelivery")}
+								</div>
 							</div>
 
 							<div
@@ -112,9 +117,11 @@ const HeroSection = () => {
 								style={{ animationDelay: "1s" }}
 							>
 								<div className="text-sm font-medium text-gray-900">
-									🤖 AI Assistant
+									{t("landing.floatingCards.aiAssistant")}
 								</div>
-								<div className="text-xs text-gray-500">Always available</div>
+								<div className="text-xs text-gray-500">
+									{t("landing.floatingCards.alwaysAvailable")}
+								</div>
 							</div>
 						</div>
 

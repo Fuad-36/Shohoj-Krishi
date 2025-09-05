@@ -1,34 +1,28 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { Navigate, useLocation } from "react-router-dom";
 
-const RoleBasedRoute = ({
-	children,
-	allowedRoles = [],
-	redirectTo = "/unauthorized",
-}) => {
-	const { user, isAuthenticated, isLoading } = useAuth();
+const RoleBasedRoute = ({ children, allowedRoles = [] }) => {
+	const { isAuthenticated, role, user } = useAuth();
+	const location = useLocation();
 
-	// Show loading while checking authentication
-	if (isLoading) {
-		return (
-			<div className="min-h-screen flex items-center justify-center bg-primary-50">
-				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-			</div>
-		);
-	}
-
-	// Redirect to sign in if not authenticated
+	// If not authenticated, redirect to sign in
 	if (!isAuthenticated) {
-		return <Navigate to="/auth/signin" replace />;
+		return <Navigate to="/auth/signin" state={{ from: location }} replace />;
 	}
 
-	// Check if user has required role
-	const hasRequiredRole =
-		allowedRoles.length === 0 || allowedRoles.includes(user?.userType);
+	// Get current user role (prefer role from auth context, fallback to user.userType)
+	const currentRole = role || user?.userType;
 
-	if (!hasRequiredRole) {
-		return <Navigate to={redirectTo} replace />;
+	// If no role specified, allow access
+	if (allowedRoles.length === 0) {
+		return children;
+	}
+
+	// Check if user's role is in allowed roles
+	if (!allowedRoles.includes(currentRole)) {
+		// Redirect to unauthorized page or main dashboard
+		return <Navigate to="/dashboard" replace />;
 	}
 
 	return children;

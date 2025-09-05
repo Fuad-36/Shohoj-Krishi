@@ -8,43 +8,49 @@ import {
 	Instagram,
 	Youtube,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+	const { t } = useTranslation();
+
 	const footerSections = [
 		{
-			title: "Platform",
+			title: t("footer.sections.platform.title"),
 			links: [
-				{ label: "For Farmers", href: "#farmers" },
-				{ label: "For Buyers", href: "#buyers" },
-				{ label: "AI Tools", href: "#ai-tools" },
-				{ label: "Government Portal", href: "#government" },
+				{ label: t("footer.sections.platform.farmers"), href: "#farmers" },
+				{ label: t("footer.sections.platform.buyers"), href: "#buyers" },
+				{ label: t("footer.sections.platform.aiTools"), href: "#ai-tools" },
+				{
+					label: t("footer.sections.platform.government"),
+					href: "#government",
+				},
 			],
 		},
 		{
-			title: "Resources",
+			title: t("footer.sections.resources.title"),
 			links: [
-				{ label: "Help Center", href: "#help" },
-				{ label: "Tutorials", href: "#tutorials" },
-				{ label: "API Documentation", href: "#api" },
-				{ label: "Community Forum", href: "#forum" },
+				{ label: t("footer.sections.resources.helpCenter"), href: "#help" },
+				{ label: t("footer.sections.resources.tutorials"), href: "#tutorials" },
+				{ label: t("footer.sections.resources.apiDocs"), href: "#api" },
+				{ label: t("footer.sections.resources.forum"), href: "#forum" },
 			],
 		},
 		{
-			title: "Company",
+			title: t("footer.sections.company.title"),
 			links: [
-				{ label: "About Us", href: "#about" },
-				{ label: "Our Mission", href: "#mission" },
-				{ label: "Careers", href: "#careers" },
-				{ label: "Press Kit", href: "#press" },
+				{ label: t("footer.sections.company.about"), href: "#about" },
+				{ label: t("footer.sections.company.mission"), href: "#mission" },
+				{ label: t("footer.sections.company.careers"), href: "#careers" },
+				{ label: t("footer.sections.company.press"), href: "#press" },
 			],
 		},
 		{
-			title: "Legal",
+			title: t("footer.sections.legal.title"),
 			links: [
-				{ label: "Privacy Policy", href: "#privacy" },
-				{ label: "Terms of Service", href: "#terms" },
-				{ label: "Cookie Policy", href: "#cookies" },
-				{ label: "Compliance", href: "#compliance" },
+				{ label: t("footer.sections.legal.privacy"), href: "#privacy" },
+				{ label: t("footer.sections.legal.terms"), href: "#terms" },
+				{ label: t("footer.sections.legal.cookies"), href: "#cookies" },
+				{ label: t("footer.sections.legal.compliance"), href: "#compliance" },
 			],
 		},
 	];
@@ -57,9 +63,9 @@ const Footer = () => {
 	];
 
 	const contactInfo = [
-		{ icon: Mail, text: "support@shohoj-krishi.com" },
-		{ icon: Phone, text: "+880 1XXX-XXXXXX" },
-		{ icon: MapPin, text: "Dhaka, Bangladesh" },
+		{ icon: Mail, text: t("footer.contact.email") },
+		{ icon: Phone, text: t("footer.contact.phone") },
+		{ icon: MapPin, text: t("footer.contact.address") },
 	];
 
 	return (
@@ -84,14 +90,12 @@ const Footer = () => {
 								<h3 className="text-xl font-display font-bold">
 									Shohoj Krishi
 								</h3>
-								<p className="text-sm text-gray-400">Smart Agriculture</p>
+								<p className="text-sm text-gray-400">{t("footer.tagline")}</p>
 							</div>
 						</div>
 
 						<p className="text-gray-400 mb-6 leading-relaxed">
-							Empowering farmers across Bangladesh with AI-driven tools and
-							direct market access. Building a sustainable future for
-							agriculture.
+							{t("footer.description")}
 						</p>
 
 						{/* Contact Info */}
@@ -132,20 +136,19 @@ const Footer = () => {
 				<div className="border-t border-gray-800 mt-12 pt-8">
 					<div className="grid md:grid-cols-2 gap-8 items-center">
 						<div>
-							<h4 className="text-xl font-semibold mb-2">Stay Updated</h4>
-							<p className="text-gray-400">
-								Get the latest updates on new features, farming tips, and market
-								insights.
-							</p>
+							<h4 className="text-xl font-semibold mb-2">
+								{t("footer.newsletter.title")}
+							</h4>
+							<p className="text-gray-400">{t("footer.newsletter.subtitle")}</p>
 						</div>
 						<div className="flex flex-col sm:flex-row gap-3">
 							<input
 								type="email"
-								placeholder="Enter your email"
+								placeholder={t("footer.newsletter.placeholder")}
 								className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
 							/>
 							<button className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200">
-								Subscribe
+								{t("footer.newsletter.subscribe")}
 							</button>
 						</div>
 					</div>
@@ -154,7 +157,7 @@ const Footer = () => {
 				{/* Bottom Section */}
 				<div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
 					<div className="text-gray-400 text-sm mb-4 md:mb-0">
-						© 2024 Shohoj-Krishi. All rights reserved.
+						{t("footer.copyright")}
 					</div>
 
 					{/* Social Links */}
@@ -174,9 +177,7 @@ const Footer = () => {
 
 				{/* Government Recognition */}
 				<div className="border-t border-gray-800 mt-8 pt-6 text-center">
-					<p className="text-gray-500 text-sm">
-						Recognized by the Government of Bangladesh | Ministry of Agriculture
-					</p>
+					<p className="text-gray-500 text-sm">{t("footer.recognition")}</p>
 				</div>
 			</div>
 		</footer>

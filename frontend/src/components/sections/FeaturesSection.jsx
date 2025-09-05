@@ -9,54 +9,51 @@ import {
 	Shield,
 	TrendingUp,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const FeaturesSection = () => {
+	const { t } = useTranslation();
+
 	const features = [
 		{
 			icon: MessageSquare,
-			title: "Bengali-Speaking Chatbot",
-			description:
-				"Get personalized farming advice and connect with government agricultural experts through our AI-powered chatbot.",
+			title: t("features.list.chatbot.title"),
+			description: t("features.list.chatbot.description"),
 			color: "text-primary-600",
 			bgColor: "bg-primary-100",
 		},
 		{
 			icon: Camera,
-			title: "Pest & Disease Detection",
-			description:
-				"Upload photos of crops to instantly identify pests and diseases using advanced computer vision technology.",
+			title: t("features.list.pestDetection.title"),
+			description: t("features.list.pestDetection.description"),
 			color: "text-secondary-600",
 			bgColor: "bg-secondary-100",
 		},
 		{
 			icon: Mic,
-			title: "Voice Input/Output",
-			description:
-				"Interact with the platform using voice commands in Bengali, perfect for users with limited literacy.",
+			title: t("features.list.voiceInput.title"),
+			description: t("features.list.voiceInput.description"),
 			color: "text-accent-600",
 			bgColor: "bg-accent-100",
 		},
 		{
 			icon: CloudRain,
-			title: "Weather Alerts",
-			description:
-				"Receive real-time, location-specific weather alerts to plan your farming activities effectively.",
+			title: t("features.list.weatherAlerts.title"),
+			description: t("features.list.weatherAlerts.description"),
 			color: "text-earth-600",
 			bgColor: "bg-earth-100",
 		},
 		{
 			icon: BookOpen,
-			title: "Educational Content",
-			description:
-				"Access Bengali micro-courses, tutorials, and translated agricultural news to improve your farming knowledge.",
+			title: t("features.list.education.title"),
+			description: t("features.list.education.description"),
 			color: "text-primary-600",
 			bgColor: "bg-primary-100",
 		},
 		{
 			icon: ShoppingCart,
-			title: "Direct Marketplace",
-			description:
-				"Connect directly with buyers, post crop availability, and negotiate fair prices without intermediaries.",
+			title: t("features.list.marketplace.title"),
+			description: t("features.list.marketplace.description"),
 			color: "text-secondary-600",
 			bgColor: "bg-secondary-100",
 		},
@@ -65,24 +62,21 @@ const FeaturesSection = () => {
 	const benefits = [
 		{
 			icon: TrendingUp,
-			title: "Increase Revenue",
-			description:
-				"Farmers see up to 40% increase in income by selling directly to buyers.",
-			stats: "40% Average Increase",
+			title: t("features.benefits.revenue.title"),
+			description: t("features.benefits.revenue.description"),
+			stats: t("features.benefits.revenue.stats"),
 		},
 		{
 			icon: Users,
-			title: "Community Support",
-			description:
-				"Join a growing community of farmers and get peer-to-peer support.",
-			stats: "10,000+ Farmers",
+			title: t("features.benefits.community.title"),
+			description: t("features.benefits.community.description"),
+			stats: t("features.benefits.community.stats"),
 		},
 		{
 			icon: Shield,
-			title: "Secure Platform",
-			description:
-				"Your data and transactions are protected with enterprise-grade security.",
-			stats: "100% Secure",
+			title: t("features.benefits.security.title"),
+			description: t("features.benefits.security.description"),
+			stats: t("features.benefits.security.stats"),
 		},
 	];
 
@@ -92,12 +86,13 @@ const FeaturesSection = () => {
 				{/* Section Header */}
 				<div className="text-center mb-16">
 					<h2 className="text-3xl sm:text-4xl font-display font-bold text-gray-900 mb-4">
-						Powerful <span className="text-gradient">AI-Driven Features</span>
+						{t("features.sectionTitle")}{" "}
+						<span className="text-gradient">
+							{t("features.sectionTitleSpan")}
+						</span>
 					</h2>
 					<p className="text-xl text-gray-600 max-w-3xl mx-auto">
-						Our platform combines cutting-edge artificial intelligence with
-						practical farming needs to create tools that truly make a difference
-						in agricultural productivity.
+						{t("features.sectionSubtitle")}
 					</p>
 				</div>
 
@@ -127,10 +122,10 @@ const FeaturesSection = () => {
 				<div className="bg-linear-to-r from-primary-50 to-secondary-50 rounded-2xl p-8 lg:p-12">
 					<div className="text-center mb-12">
 						<h3 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 mb-4">
-							Why Choose Shohoj-Krishi?
+							{t("features.benefits.title")}
 						</h3>
 						<p className="text-lg text-gray-600">
-							Real results from real farmers across Bangladesh
+							{t("features.benefits.subtitle")}
 						</p>
 					</div>
 
