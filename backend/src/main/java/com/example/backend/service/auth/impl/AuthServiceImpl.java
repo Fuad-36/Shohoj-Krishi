@@ -13,6 +13,7 @@ import com.example.backend.repository.auth.UserRepository;
 import com.example.backend.service.EmailService;
 import com.example.backend.service.auth.AuthService;
 import com.example.backend.service.auth.JwtService;
+import com.example.backend.util.CurrentUserUtil;
 import com.example.backend.util.OtpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -70,6 +71,7 @@ public class AuthServiceImpl implements AuthService {
     private final BuyerProfileRepository buyerProfileRepository;
     private final AuthorityProfileRepository authorityProfileRepository;
     private final AppConfig appConfig;
+    private final CurrentUserUtil currentUserUtil;
 
     @Override
     public AuthResponse authenticate(LoginRequest request) {
@@ -95,9 +97,22 @@ public class AuthServiceImpl implements AuthService {
             String jwtToken = jwtService.generateAccessToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
 
+//            User user = currentUserUtil.getCurrentUser();
+            Long userId = user.getId();
+            Long roleId = user.getRoles().stream().findFirst().map(Role::getId).orElse(null);
+
+
+            String roleName =
+                    roleId == 1 ? "FARMER" :
+                            roleId == 2 ? "BUYER" :
+                                    roleId == 3 ? "AUTHORITY" :
+                                            roleId == 4 ? "ADMIN" :
+                                                    "UNKNOWN";
             return AuthResponse.builder()
                     .token(jwtToken)
                     .refreshToken(refreshToken)
+                    .userId(userId)
+                    .role(roleName)
                     .message("Login successful")
                     .build();
         } catch (BadCredentialsException e) {
@@ -123,9 +138,21 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String newAccessToken = jwtService.generateAccessToken(user);
+        Long userId = user.getId();
+        Long roleId = user.getRoles().stream().findFirst().map(Role::getId).orElse(null);
+
+
+        String roleName =
+                roleId == 1 ? "FARMER" :
+                        roleId == 2 ? "BUYER" :
+                                roleId == 3 ? "AUTHORITY" :
+                                        roleId == 4 ? "ADMIN" :
+                                                "UNKNOWN";
         return AuthResponse.builder()
                 .token(newAccessToken)
                 .refreshToken(refreshToken)
+                .userId(userId)
+                .role(roleName)
                 .message("Token refreshed successfully")
                 .build();
     }
